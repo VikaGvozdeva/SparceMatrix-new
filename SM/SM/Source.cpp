@@ -49,10 +49,10 @@ void qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 		qs(s_arr, _s_arr, first, j);
 }
 
-int compare(const void * x1, const void * x2)   // функция сравнения элементов массива
+int compare(const void * x1, const void * x2)   
 {
 	return (*(int*)x1 - *(int*)x2);    
-	// если результат вычитания равен 0, то числа равны, < 0: x1 < x2; > 0: x1 > x2
+
 }
 
 class COOMatrix
@@ -119,11 +119,38 @@ public:
 
 	COOMatrix *COOMatrix::ReadFromBinaryFile(char *filename)
 	{
-		//
+		FILE *COOmtx = NULL;
+		int N, NNZ;
+		COOmtx = fopen("COOmtx.bin", "rb");
+		if (COOmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fread(&N, sizeof(INTTYPE), 1, COOmtx);
+		fread(&NNZ, sizeof(INTTYPE), 1, COOmtx);
+		COOMatrix * Matrix = new COOMatrix(NNZ, N);
+		fread(Matrix->val, sizeof(FPTYPE), Matrix->NNZ, COOmtx);
+		fread(Matrix->col_ind, sizeof(INTTYPE), Matrix->NNZ, COOmtx);
+		fread(Matrix->row_ind, sizeof(INTTYPE), Matrix->NNZ, COOmtx);
+		fclose(COOmtx);
+		return Matrix;
 	}
+
 	void COOMatrix::WriteInBinaryFile(COOMatrix Matrix)
 	{
-		//
+		FILE *COOmtx = NULL;
+		int number;
+		COOmtx = fopen("COOmtx.bin", "wb");
+		if (COOmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fwrite(&Matrix.N, sizeof(INTTYPE), 1, COOmtx);
+		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, COOmtx);
+		fwrite(Matrix.val, sizeof(FPTYPE), Matrix.NNZ, COOmtx);
+		fwrite(Matrix.col_ind, sizeof(INTTYPE), Matrix.NNZ, COOmtx);
+		fwrite(Matrix.row_ind, sizeof(INTTYPE), Matrix.NNZ, COOmtx);
+		fclose(COOmtx);
 	}
 	FPTYPE* COOMatrix::MatrixVectorMultCOO(COOMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
@@ -249,14 +276,42 @@ public:
 
 	CRSMatrix *CRSMatrix::ReadFromBinaryFile(char *filename)
 	{
-		//
+		FILE *CRSmtx = NULL;
+		int N, NNZ;
+		CRSmtx = fopen("COOmtx.bin", "rb");
+		if (CRSmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fread(&N, sizeof(INTTYPE), 1, CRSmtx);
+		fread(&NNZ, sizeof(INTTYPE), 1, CRSmtx);
+		CRSMatrix * Matrix = new CRSMatrix(NNZ, N);
+		fread(Matrix->val, sizeof(FPTYPE), Matrix->NNZ, CRSmtx);
+		fread(Matrix->col_ind, sizeof(INTTYPE), Matrix->NNZ, CRSmtx);
+		fread(Matrix->row_ptr, sizeof(INTTYPE), Matrix->N +1, CRSmtx);
+		fclose(CRSmtx);
+		return Matrix;
 	}
 
 	void CRSMatrix::WriteInBinaryFile(CRSMatrix Matrix)
 	{
-		//
+		FILE *CRSmtx = NULL;
+		int number;
+		CRSmtx = fopen("CRSmtx.bin", "wb");
+		if (CRSmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fwrite(&Matrix.N, sizeof(INTTYPE), 1, CRSmtx);
+		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, CRSmtx);
+		fwrite(Matrix.val, sizeof(FPTYPE), Matrix.NNZ, CRSmtx);
+		fwrite(Matrix.col_ind, sizeof(INTTYPE), Matrix.NNZ, CRSmtx);
+		fwrite(Matrix.row_ptr, sizeof(INTTYPE), Matrix.N+1, CRSmtx);
+		fclose(CRSmtx);
 	}
-	//CRSMatrix& CRSMatrix::operator=(const CRSMatrix &Matrix) {}
+	CRSMatrix& CRSMatrix::operator=(const CRSMatrix &Matrix) 
+	{
+	}
 	FPTYPE* CRSMatrix::MatrixVectorMultCRS(CRSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		int i, j;
@@ -335,14 +390,43 @@ public:
 
 	CCSMatrix *CCSMatrix::ReadFromBinaryFile(char *filename)
 	{
-		//
+		FILE *CCSmtx = NULL;
+		int N, NNZ;
+		CCSmtx = fopen("CCSmtx.bin", "rb");
+		if (CCSmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fread(&N, sizeof(INTTYPE), 1, CCSmtx);
+		fread(&NNZ, sizeof(INTTYPE), 1, CCSmtx);
+		CCSMatrix * Matrix = new CCSMatrix(NNZ, N);
+		fread(Matrix->val, sizeof(FPTYPE), Matrix->NNZ, CCSmtx);
+		fread(Matrix->row_ind, sizeof(INTTYPE), Matrix->NNZ, CCSmtx);
+		fread(Matrix->col_ptr, sizeof(INTTYPE), Matrix->N + 1, CCSmtx);
+		fclose(CCSmtx);
+		return Matrix;
 	}
 
 	void CCSMatrix::WriteInBinaryFile(CCSMatrix Matrix)
 	{
+		FILE *CCSmtx = NULL;
+		int number;
+		CCSmtx = fopen("CCSmtx.bin", "wb");
+		if (CCSmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fwrite(&Matrix.N, sizeof(INTTYPE), 1, CCSmtx);
+		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, CCSmtx);
+		fwrite(Matrix.val, sizeof(FPTYPE), Matrix.NNZ, CCSmtx);
+		fwrite(Matrix.row_ind, sizeof(INTTYPE), Matrix.NNZ, CCSmtx);
+		fwrite(Matrix.col_ptr, sizeof(INTTYPE), Matrix.N + 1, CCSmtx);
+		fclose(CCSmtx);
+	}
+	CCSMatrix& CCSMatrix::operator=(const CCSMatrix &Matrix) 
+	{
 		//
 	}
-	//CCSMatrix& CCSMatrix::operator=(const CCSMatrix &Matrix) {}
 	FPTYPE* CCSMatrix::MatrixVectorMultCCS(CCSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		int i, j, k;
@@ -871,7 +955,7 @@ class Converters
 	}
 };
 
-void ReadMatrixInfo(COOMatrix& Matrix, char *name)//������ ������� �� �����
+void ReadMatrixInfo(COOMatrix& Matrix, char *name)
 {
 	FILE* f;
 	int i;
@@ -964,6 +1048,29 @@ void ReadNumberForMatrix(int& N, int& NNZ, char *name)
 	NNZ = atoi(p);
 	//free(line);
 	delete[] line;
+}
+double SearchMax_double(double* arr, int N) 
+{
+	int i;
+	double max_arr = arr[0];
+	for (i = 1; i < N; i++)
+	{
+		if (max_arr < arr[i])
+			max_arr = arr[i];
+	}
+	return max_arr;
+}
+double CheckCorrectness(double* my_mult, double* mkl_mult, int N) 
+{
+	int i;
+	double res;
+	double* arr_abs;
+	arr_abs = (double*)malloc(N * sizeof(double));
+	for (i = 0; i < N; i++)
+		arr_abs[i] = abs(my_mult[i] - mkl_mult[i]);
+	res = SearchMax_double(arr_abs, N);
+	free(arr_abs);
+	return res;
 }
 
 int main()
