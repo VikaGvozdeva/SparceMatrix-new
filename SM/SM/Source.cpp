@@ -152,10 +152,7 @@ public:
 		fwrite(Matrix.row_ind, sizeof(INTTYPE), Matrix.NNZ, COOmtx);
 		fclose(COOmtx);
 	}
-	FPTYPE* COOMatrix::MatrixVectorMultCOO(COOMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
-	{
-		//
-	}
+
 	INTTYPE COOMatrix::DiagCDMatrix(COOMatrix Matrix)
 	{
 		int i, tmp_ind, diag_numb, m, j;
@@ -528,7 +525,25 @@ public:
 	}
 	CDMatrix::CDMatrix(const CDMatrix &Matrix)
 	{
-
+		int i;
+		N = Matrix.N;
+		NNZ = Matrix.NNZ;
+		B = Matrix.B;
+		diag = new INTTYPE[B];
+		val = new FPTYPE*[N];
+		for (i = 0; i < N; i++)
+		{
+			val[i] = new FPTYPE[Matrix.B];
+		}
+		for (i = 0; i < B; i++)
+		{
+			diag[i] = Matrix.diag[i];
+		}
+		for (i = 0; i < N ; i++)
+			for (int j = 0; j < B; j++)
+			{
+				val[i][j] = Matrix.val[i][j];
+			}
 	}
 	CDMatrix *CDMatrix::ReadFromBinaryFile(char *filename)
 	{
@@ -1116,6 +1131,21 @@ double CheckCorrectness(double* my_mult, double* mkl_mult, int N)
 
 int main()
 {
+	FPTYPE* result_crs;
+	FPTYPE* result_ccs;
+	FPTYPE* result_cd;
+	FPTYPE* result_jd;
+	FPTYPE* result_sl;
+	FPTYPE* result_mkl;
 
+
+
+
+	//delete[] result_crs;
+	//delete[] result_ccs;
+	//delete[] result_cd;
+	//delete[] result_jd;
+	//delete[] result_sl;
+	//delete[] result_mkl;
 	return 0;
 }
