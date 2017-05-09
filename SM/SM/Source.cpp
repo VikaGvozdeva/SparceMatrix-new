@@ -877,14 +877,15 @@ void ReadMatrixInfo(COOMatrix& Matrix, char *name)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	int i;
 	char* line;
 	char* p = NULL;
-	//char name[256] = "ck656.mtx";
+
 
 	f = fopen(name, "r");
 	if (f == NULL)
 	{
 		printf("%s- File Not Found!\n", name);
 	}
-	line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
+	//line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
+	line = new char[MAX_LINE_LEN];
 	do
 		fgets(line, MAX_LINE_LEN, f);
 	while (line[0] == '%');
@@ -902,7 +903,8 @@ void ReadMatrixInfo(COOMatrix& Matrix, char *name)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 		p = strtok(NULL, " ");
 		Matrix.val[i] = atof(p);
 	}
-	free(line);
+	delete[] line;
+	//free(line);
 	fclose(f);
 }
 COOMatrix *ReadMatrix(char *name)
@@ -914,8 +916,8 @@ COOMatrix *ReadMatrix(char *name)
 	f = fopen(name, "r");
 	if (f == NULL)
 		printf("%s- File Not Found!\n", name);
-	line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
-	//line = new char[MAX_LINE_LEN];
+	//line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
+	line = new char[MAX_LINE_LEN];
 	do
 		fgets(line, MAX_LINE_LEN, f);
 	while (line[0] == '%');
@@ -936,22 +938,22 @@ COOMatrix *ReadMatrix(char *name)
 		p = strtok(NULL, " ");
 		Matrix->val[i] = atof(p);
 	}
-	free(line);
-	//delete []line;
+	//free(line);
+	delete[] line;
 	fclose(f);
 	return Matrix;
 }
-void ReadNumberForMatrix(int& N, int& NNZ, char *name) //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ ï¿½ï¿½ï¿½-ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+void ReadNumberForMatrix(int& N, int& NNZ, char *name)
 {
 	FILE* f;
 	char* line;
 	char* p = NULL;
-	//char name[256] = "ck656.mtx";
 
 	f = fopen(name, "r");
 	if (f == NULL)
 		printf("%s- File Not Found!\n", name);
-	line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
+	//line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
+	line = new char[MAX_LINE_LEN];
 	do
 		fgets(line, MAX_LINE_LEN, f);
 	while (line[0] == '%');
@@ -960,7 +962,8 @@ void ReadNumberForMatrix(int& N, int& NNZ, char *name) //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï
 	p = strtok(NULL, " ");
 	p = strtok(NULL, " ");
 	NNZ = atoi(p);
-	free(line);
+	//free(line);
+	delete[] line;
 }
 
 int main()
