@@ -1,16 +1,21 @@
-﻿#include <inttypes.h>
+﻿#define _CRT_SECURE_NO_WARNINGS
+
+#include <inttypes.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <cmath>
 #include <string.h>
 #include <iostream>
 #include <vector>
+#include <mkl.h>
 
 using namespace std;
 
 typedef int64_t INTTYPE;
 typedef int32_t INTTYPE32;
 typedef double FPTYPE;
+
+#define MAX_LINE_LEN 1000000
 
 
 void qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
@@ -102,6 +107,16 @@ public:
 			val = &Matrix.val[j];
 		}
 	}
+	void COOMatrix::PrintMatrix(int NNZ)
+	{
+		int i;
+		for (i = 0; i < NNZ; i++)
+		{
+			printf("(%lf,%d,%d) , ", val[i], row_ind[i], col_ind[i]);
+		}
+		printf("\n");
+	}
+
 	COOMatrix *COOMatrix::ReadFromBinaryFile(char *filename)
 	{
 		//
@@ -179,6 +194,8 @@ public:
 	}
 
 };
+
+
 
 class CRSMatrix
 {
@@ -386,6 +403,7 @@ public:
 	}
 	CDMatrix::CDMatrix(const CDMatrix &Matrix)
 	{
+
 	}
 	CDMatrix *CDMatrix::ReadFromBinaryFile(char *filename)
 	{
@@ -853,7 +871,100 @@ class Converters
 	}
 };
 
+void ReadMatrixInfo(COOMatrix& Matrix, char *name)//������ ������� �� �����
+{
+	FILE* f;
+	int i;
+	char* line;
+	char* p = NULL;
+	//char name[256] = "ck656.mtx";
+
+	f = fopen(name, "r");
+	if (f == NULL)
+	{
+		printf("%s- File Not Found!\n", name);
+	}
+	line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
+	do
+		fgets(line, MAX_LINE_LEN, f);
+	while (line[0] == '%');
+	p = strtok(line, " ");
+	p = strtok(NULL, " ");
+	p = strtok(NULL, " ");
+	for (i = 0; i < Matrix.NNZ; i++)
+	{
+		fgets(line, MAX_LINE_LEN, f);
+		p = strtok(line, " ");
+		Matrix.row_ind[i] = atoi(p) - 1;
+		Matrix.NNZ_row[Matrix.row_ind[i]]++;
+		p = strtok(NULL, " ");
+		Matrix.col_ind[i] = atoi(p) - 1;
+		p = strtok(NULL, " ");
+		Matrix.val[i] = atof(p);
+	}
+	free(line);
+	fclose(f);
+}
+COOMatrix *ReadMatrix(char *name)
+{
+	FILE* f;
+	char* line;
+	char* p = NULL;
+	int N, NNZ, i;
+	f = fopen(name, "r");
+	if (f == NULL)
+		printf("%s- File Not Found!\n", name);
+	line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
+	//line = new char[MAX_LINE_LEN];
+	do
+		fgets(line, MAX_LINE_LEN, f);
+	while (line[0] == '%');
+	p = strtok(line, " ");
+	N = atoi(p);
+	p = strtok(NULL, " ");
+	p = strtok(NULL, " ");
+	NNZ = atoi(p);
+	COOMatrix * Matrix = new COOMatrix(NNZ, N);
+	for (i = 0; i < Matrix->NNZ; i++)
+	{
+		fgets(line, MAX_LINE_LEN, f);
+		p = strtok(line, " ");
+		Matrix->row_ind[i] = atoi(p) - 1;
+		Matrix->NNZ_row[Matrix->row_ind[i]]++;
+		p = strtok(NULL, " ");
+		Matrix->col_ind[i] = atoi(p) - 1;
+		p = strtok(NULL, " ");
+		Matrix->val[i] = atof(p);
+	}
+	free(line);
+	//delete []line;
+	fclose(f);
+	return Matrix;
+}
+void ReadNumberForMatrix(int& N, int& NNZ, char *name) //������ ������� � ���-�� ��������� ���������
+{
+	FILE* f;
+	char* line;
+	char* p = NULL;
+	//char name[256] = "ck656.mtx";
+
+	f = fopen(name, "r");
+	if (f == NULL)
+		printf("%s- File Not Found!\n", name);
+	line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
+	do
+		fgets(line, MAX_LINE_LEN, f);
+	while (line[0] == '%');
+	p = strtok(line, " ");
+	N = atoi(p);
+	p = strtok(NULL, " ");
+	p = strtok(NULL, " ");
+	NNZ = atoi(p);
+	free(line);
+}
+
 int main()
 {
+
 	return 0;
 }
