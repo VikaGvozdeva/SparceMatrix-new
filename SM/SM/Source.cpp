@@ -102,9 +102,9 @@ public:
 
 		for (int j = 0; j < NNZ; j++)
 		{
-			col_ind = &Matrix.col_ind[j];
-			row_ind = &Matrix.row_ind[j];
-			val = &Matrix.val[j];
+			col_ind[j] = Matrix.col_ind[j];
+			row_ind[j] = Matrix.row_ind[j];
+			val[j] = Matrix.val[j];
 		}
 	}
 	void COOMatrix::PrintMatrix(int NNZ)
@@ -261,8 +261,8 @@ public:
 
 		for (int j = 0; j < NNZ; j++)
 		{
-			col_ind = &Matrix.col_ind[j];
-			val = &Matrix.val[j];
+			col_ind[j] = Matrix.col_ind[j];
+			val[j] = Matrix.val[j];
 		}
 
 	}
@@ -311,6 +311,27 @@ public:
 	}
 	CRSMatrix& CRSMatrix::operator=(const CRSMatrix &Matrix) 
 	{
+		int i;
+		if (this != &Matrix) {
+			delete[] val;
+			delete[] col_ind;
+			delete[] row_ptr;
+			N = Matrix.N;
+			NNZ = Matrix.NNZ;
+			
+			val = new FPTYPE[NNZ];
+			col_ind = new INTTYPE[NNZ];
+			row_ptr = new INTTYPE[N + 1];
+			for (i = 0; i < NNZ; i++)
+			{
+				col_ind[i] = Matrix.col_ind[i];
+				val[i] = Matrix.val[i];
+			}
+			for (i = 0; i < N + 1; i++)
+				row_ptr[i] = Matrix.row_ptr[i];
+
+		}
+		return *this;
 	}
 	FPTYPE* CRSMatrix::MatrixVectorMultCRS(CRSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
@@ -425,7 +446,27 @@ public:
 	}
 	CCSMatrix& CCSMatrix::operator=(const CCSMatrix &Matrix) 
 	{
-		//
+		int i;
+		if (this != &Matrix) {
+			delete[] val;
+			delete[] row_ind;
+			delete[] col_ptr;
+			N = Matrix.N;
+			NNZ = Matrix.NNZ;
+
+			val = new FPTYPE[NNZ];
+			row_ind = new INTTYPE[NNZ];
+			col_ptr = new INTTYPE[N + 1];
+			for (i = 0; i < NNZ; i++)
+			{
+				row_ind[i] = Matrix.row_ind[i];
+				val[i] = Matrix.val[i];
+			}
+			for (i = 0; i < N + 1; i++)
+				col_ptr[i] = Matrix.col_ptr[i];
+
+		}
+		return *this;
 	}
 	FPTYPE* CCSMatrix::MatrixVectorMultCCS(CCSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
@@ -715,7 +756,26 @@ public:
 	}
 	FPTYPE* SLMatrix::MatrixVectorMultSL(SLMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
-		//
+		int i, j;
+		for (i = 0; i < N; i++)
+		{
+			result[i] = 0;
+		}
+		for (i = 0; i < N; i++)
+		{
+			result[i] = vec[i] * Matrix->adiag[i];
+		}
+		for (i = 1; i < N; i++)
+		{
+
+			//for (j = Matrix->iptr[i]; j < Matrix->iptr[i + 1] - 1; j++)
+			for (j = Matrix->iptr[i]; j < Matrix->iptr[i + 1]; j++)
+			{
+				result[i] += vec[Matrix->jptr[j]] * Matrix->altr[j];
+				result[Matrix->jptr[j]] += vec[i] * Matrix->autr[j];
+			}
+		}
+	return result;
 	}
 };
 
@@ -723,11 +783,9 @@ class Converters
 {
 	static CRSMatrix COOToCRS(const COOMatrix &Mtx, CRSMatrix Matrix)
 	{
-
 		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, n = 0, m = 0;
 		NNZ = Mtx.NNZ;
 		N = Mtx.N;
-
 		vector< vector<int> > col_ind_;
 		col_ind_.resize(N);
 		vector< vector<double> > val_;
@@ -783,7 +841,6 @@ class Converters
 
 	static CDMatrix COOToCD(const COOMatrix &Mtx, CDMatrix Matrix)
 	{
-
 		int i = 0, j = 0, n, k = 0, l = 0, NNZ = 0, N = 0, diag_ind = 0, B = 0, tmp_ind = 0, m = 0, diag_numb = 0;
 		bool flag;
 		NNZ = Mtx.NNZ;
@@ -806,7 +863,6 @@ class Converters
 					val_[j].push_back(Mtx.val[i]);
 			}
 		}
-
 		INTTYPE *diag_ptr = new INTTYPE[diag_numb+1];
 		diag_ptr[0] = 0;
 		for (int j = 1; j < diag_numb+1; j++)
@@ -832,15 +888,12 @@ class Converters
 
 	static JDMatrix COOToJD(const COOMatrix &Mtx, JDMatrix Matrix)
 	{
-
 		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, maxval = 0;
 		NNZ = Mtx.NNZ;
 		N = Mtx.N;
 		maxval = Matrix.MaxNNZ;
-
 		vector< vector<int> > col_ind_;
 		col_ind_.resize(N);
-
 		vector< vector<int> > val_;
 		val_.resize(N);
 		INTTYPE *nnz_row = new INTTYPE[N];
@@ -872,7 +925,6 @@ class Converters
 			{
 				nnz_col[k]++;
 			}
-
 		}
 
 		int l = 0;
@@ -886,15 +938,11 @@ class Converters
 				l++;
 			}
 		}
-
 		Matrix.jd_ptr[0] = 0;
-
-
 		for (i = 1; i < N + 1; i++)
 		{
 			Matrix.jd_ptr[i] = nnz_col[i - 1];
 		}
-
 
 		for (i = 2; i < N + 1; i++)
 		{
@@ -915,7 +963,6 @@ class Converters
 		int diag = _diag;
 		vector< vector<double> > vec;
 		vec.resize(N);
-
 
 		INTTYPE* elem_before_diag = new INTTYPE[N];
 		for (int i = 0; i < N; i++)
@@ -968,7 +1015,6 @@ void ReadMatrixInfo(COOMatrix& Matrix, char *name)
 	{
 		printf("%s- File Not Found!\n", name);
 	}
-	//line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
 	line = new char[MAX_LINE_LEN];
 	do
 		fgets(line, MAX_LINE_LEN, f);
@@ -988,7 +1034,6 @@ void ReadMatrixInfo(COOMatrix& Matrix, char *name)
 		Matrix.val[i] = atof(p);
 	}
 	delete[] line;
-	//free(line);
 	fclose(f);
 }
 COOMatrix *ReadMatrix(char *name)
@@ -1000,7 +1045,6 @@ COOMatrix *ReadMatrix(char *name)
 	f = fopen(name, "r");
 	if (f == NULL)
 		printf("%s- File Not Found!\n", name);
-	//line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
 	line = new char[MAX_LINE_LEN];
 	do
 		fgets(line, MAX_LINE_LEN, f);
@@ -1022,7 +1066,6 @@ COOMatrix *ReadMatrix(char *name)
 		p = strtok(NULL, " ");
 		Matrix->val[i] = atof(p);
 	}
-	//free(line);
 	delete[] line;
 	fclose(f);
 	return Matrix;
@@ -1036,7 +1079,6 @@ void ReadNumberForMatrix(int& N, int& NNZ, char *name)
 	f = fopen(name, "r");
 	if (f == NULL)
 		printf("%s- File Not Found!\n", name);
-	//line = (char*)malloc((MAX_LINE_LEN) * sizeof(char));
 	line = new char[MAX_LINE_LEN];
 	do
 		fgets(line, MAX_LINE_LEN, f);
@@ -1046,7 +1088,6 @@ void ReadNumberForMatrix(int& N, int& NNZ, char *name)
 	p = strtok(NULL, " ");
 	p = strtok(NULL, " ");
 	NNZ = atoi(p);
-	//free(line);
 	delete[] line;
 }
 double SearchMax_double(double* arr, int N) 
