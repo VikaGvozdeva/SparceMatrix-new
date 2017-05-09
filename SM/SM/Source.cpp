@@ -168,6 +168,15 @@ public:
 		}
 		return maxval;
 	}
+	INTTYPE COOMatrix::diagSLMatrix(COOMatrix Matrix)
+	{
+		int diagelem = 0;
+		for (int i = 0; i < NNZ; i++)
+		{
+			if (Matrix.row_ind[i] == Matrix.col_ind[i])
+				diagelem++;
+		}
+	}
 
 };
 
@@ -556,13 +565,39 @@ public:
 	INTTYPE *jptr;
 	INTTYPE *iptr;
 
-	SLMatrix::SLMatrix(INTTYPE  _NNZ, INTTYPE _N)
+	SLMatrix::SLMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _diag)
 	{
-		//
+		int i;
+		N = _N;
+		NNZ = _NNZ;
+		diag = _diag;
+		adiag = new FPTYPE[N];
+		altr = new FPTYPE[(NNZ - diag) / 2];
+		autr = new FPTYPE[(NNZ - diag) / 2];
+		jptr = new INTTYPE[(NNZ - diag) / 2];
+		iptr = new INTTYPE[N + 1];
+		for (i = 0; i < (NNZ - diag) / 2; i++)
+		{
+			altr[i] = 0;
+			autr[i] = 0;
+			jptr[i] = 0;
+		}
+		for (i = 0; i < N; i++)
+		{
+			adiag[i] = 0;
+		}
+		for (i = 0; i < N + 1; i++)
+		{
+			iptr[i] = 0;
+		}
 	}
 	SLMatrix::~SLMatrix()
 	{
-		//
+		delete[] autr;
+		delete[] altr;
+		delete[] iptr;
+		delete[] jptr;
+		delete[] adiag;
 	}
 	SLMatrix::SLMatrix(const COOMatrix &Matrix)
 	{
