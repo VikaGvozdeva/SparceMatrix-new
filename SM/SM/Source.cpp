@@ -11,6 +11,12 @@ using namespace std;
 typedef int64_t INTTYPE;
 typedef int32_t INTTYPE32;
 typedef double FPTYPE;
+
+int compare(const void * x1, const void * x2)   // функция сравнения элементов массива
+{
+	return (*(int*)x1 - *(int*)x2);              // если результат вычитания равен 0, то числа равны, < 0: x1 < x2; > 0: x1 > x2
+}
+
 class COOMatrix
 {
 
@@ -74,6 +80,51 @@ public:
 	FPTYPE* COOMatrix::MatrixVectorMultCOO(COOMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		//
+	}
+	INTTYPE COOMatrix::DiagCDMatrix(COOMatrix Matrix)
+	{
+		int i, tmp_ind, diag_numb, m, j;
+		bool flag;
+		NNZ = Matrix.NNZ;
+		N = Matrix.N;
+
+		INTTYPE *diag = new INTTYPE[2 * N - 1];
+
+		for (i = 0; i < 2 * N - 1; i++)
+		{
+			diag[i] = N + 1;
+		}
+		for (i = 0; i < NNZ; i++)
+		{
+			tmp_ind = Matrix.col_ind[i] - Matrix.row_ind[i];
+			for (j = 0; j < 2 * N - 1; j++)
+			{
+				if ((tmp_ind) != diag[j])
+				{
+					flag = true;
+				}
+				else
+				{
+					flag = false;
+					break;
+				}
+
+			}
+
+			if (flag == true)
+			{
+				diag[m++] = tmp_ind;
+			}
+
+		}
+
+		diag_numb = m;
+		return diag_numb;
+	}
+
+	void COOMatrix::maxvalJDMatrix(COOMatrix Matrix)
+	{
+
 	}
 
 };
@@ -289,6 +340,43 @@ public:
 	{
 		//
 	}
+	void CDMatrix::FillDiagArray(COOMatrix Matrix)
+	{
+		int i, j, tmp_ind, m, diag_numb;
+		bool flag;
+
+		for (i = 0; i < 2 * N - 1; i++)
+		{
+			diag[i] = N + 1;
+		}
+		for (i = 0; i < NNZ; i++)
+		{
+			tmp_ind = Matrix.col_ind[i] - Matrix.row_ind[i];
+			for (j = 0; j < 2 * N - 1; j++)
+			{
+				if ((tmp_ind) != diag[j])
+				{
+					flag = true;
+				}
+				else
+				{
+					flag = false;
+					break;
+				}
+
+			}
+
+			if (flag == true)
+			{
+				diag[m++] = tmp_ind;
+			}
+
+		}
+
+		diag_numb = m;
+
+		qsort(&diag[0], m, sizeof(INTTYPE), compare);
+	}
 	void CDMatrix::WriteInBinaryFile(CDMatrix Matrix)
 	{
 		//
@@ -454,7 +542,7 @@ public:
 
 class Converters
 {
-	static CRSMatrix COOToCRS(const COOMatrix Mtx, CRSMatrix Matrix)
+	static CRSMatrix COOToCRS(const COOMatrix &Mtx, CRSMatrix Matrix)
 	{
 
 		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, n = 0, m = 0;
@@ -489,7 +577,7 @@ class Converters
 		}
 	}
 
-	static CCSMatrix COOToCCS(const COOMatrix Mtx, CCSMatrix Matrix)
+	static CCSMatrix COOToCCS(const COOMatrix &Mtx, CCSMatrix Matrix)
 	{
 		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0;
 		NNZ = Mtx.NNZ;
@@ -514,76 +602,200 @@ class Converters
 		}
 	}
 
-	static CDMatrix COOToCD(const COOMatrix Mtx, CDMatrix Matrix)
+	static CDMatrix COOToCD(const COOMatrix &Mtx, CDMatrix Matrix)
 	{
-		//
-		int i = 0, j = 0, k = 0, l = 0, NNZ = 0, N = 0, diag_ind = 0, B = 0, tmp_ind = 0, m = 0, diag_numb = 0;
+
+		int i = 0, j = 0, n, k = 0, l = 0, NNZ = 0, N = 0, diag_ind = 0, B = 0, tmp_ind = 0, m = 0, diag_numb = 0;
 		bool flag;
-		NNZ = Matrix->NNZ;
-		N = Matrix->N;
+		NNZ = Mtx.NNZ;
+		N = Mtx.N;
+		diag_numb = Matrix.B;
 
-		int *diag = (int*)malloc((2 * N - 1) * sizeof(int*));
-		for (i = 0; i < 2 * N - 1; i++)
+		vector< vector<int> > val_;
+		val_.resize(diag_numb);
+		for (int i = 0; i < diag_numb; i++)
 		{
-			diag[i] = N + 1;
+			val_[i].push_back(Matrix.diag[i]);
 		}
-		for (i = 0; i < NNZ; i++)
-		{
-			tmp_ind = Matrix->col_ind[i] - Matrix->row_ind[i];
-			for (j = 0; j < 2 * N - 1; j++)
-			{
-				if ((tmp_ind) != diag[j])
-				{
-					flag = true;
-				}
-				else
-				{
-					flag = false;
-					break;
-				}
-
-			}
-
-			if (flag == true)
-			{
-				diag[m++] = tmp_ind;
-			}
-
-		}
-
-		diag_numb = m;
-		//âûçâàòü ñòàíäàðòíûé êóñîðò
-		bubblesort(diag, m);
-
-		COMPDIAGMATRIX* Mtx = new COMPDIAGMATRIX(N, NNZ, diag_numb);
-		for (i = 0; i < diag_numb; i++)
-		{
-			Mtx->diag[i] = diag[i];
-		}
-
-
-		Matrix->Sort(Matrix->NNZ);
 
 		for (i = 0; i < NNZ; i++)
 		{
-			tmp_ind = Matrix->col_ind[i] - Matrix->row_ind[i];
+			tmp_ind = Mtx.col_ind[i] - Mtx.row_ind[i];
 			for (j = 0; j < diag_numb; j++)
 			{
-				if (tmp_ind == Mtx->diag[j])
-					Mtx->val[Matrix->row_ind[i]][j] = Matrix->val[i];
-
+				if (tmp_ind == val_[j][0])
+					val_[j].push_back(Mtx.val[i]);
 			}
 		}
-		free(diag);
-		return Mtx;
+
+		INTTYPE *diag_ptr = new INTTYPE[diag_numb+1];
+		diag_ptr[0] = 0;
+		for (int j = 1; j < diag_numb+1; j++)
+		{
+			diag_ptr[j] = val_[j-1].size() - 1;
+		}
+		for (k = 2; k < diag_numb + 1; k++)
+		{
+			diag_ptr[k] += diag_ptr[k - 1];
+		}
+		for (m = 0; m < diag_numb; m++) {
+			k = 0;
+			int p = 0;
+			for (n = diag_ptr[m]; n < diag_ptr[m + 1]; n++)
+			{
+				Matrix.val[k][p] = val_[k][p + 1];
+				p++;
+			}
+		}
+
+		//delete[] diag;
+		delete[] diag_ptr;
 	}
 
-	static JDMatrix COOToJD(const COOMatrix Mtx, JDMatrix Matrix)
+	static JDMatrix COOToJD(const COOMatrix &Mtx, JDMatrix Matrix)
 	{
-		//
+		////
+		//int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, maxval = 0;
+		//double** val;
+		//int** col_ind;
+		//NNZ = Mtx.NNZ;
+		//N = Mtx.N;
+		//int* nnz_row;
+		//int* nnz_row_ind;
+		//INTTYPE *row_ind = new INTTYPE[N + 1];
+		//for (i = 0; i<N + 1; i++)
+		//	row_ind[i] = 0;
+		//INTTYPE *nnz_col = new INTTYPE[N];
+		//for (i = 0; i<N; i++)
+		//{
+		//	nnz_col[i] = 0;
+		//}
+
+		//for (i = 1; i<N + 1; i++)
+		//{
+		//	row_ind[i] = Mtx.NNZ_row[i - 1];
+		//}
+		//for (k = 2; k < (N + 1); k++)
+		//{
+		//	row_ind[k] += row_ind[k - 1];
+		//}
+
+		//maxval = Mtx.NNZ_row[0];
+		//for (i = 1; i< N; i++)
+		//{
+		//	if (Matrix->NNZ_row[i]>maxval)
+		//	{
+		//		maxval = Matrix->NNZ_row[i];
+		//	}
+		//}
+
+		//col_ind = (int**)malloc(N * sizeof(int*));
+		//for (i = 0; i < N; i++)
+		//	col_ind[i] = (int*)malloc(maxval * sizeof(int));
+
+		//for (i = 0; i < N; i++) {
+		//	for (j = 0; j < maxval; j++)
+		//		col_ind[i][j] = -1;
+		//}
+
+		//val = (double**)malloc(N * sizeof(double*));
+		//for (i = 0; i < N; i++)
+		//	val[i] = (double*)malloc(maxval * sizeof(double));
+
+		//for (i = 0; i < N; i++) {
+		//	for (j = 0; j < maxval; j++)
+		//		val[i][j] = 0.0;
+		//}
+
+		//k = 0;
+		////change nnz
+		//for (i = 0; i< NNZ - 1; i++)
+		//{
+		//	tmp_ind = Matrix->row_ind[i];
+		//	val[tmp_ind][k] = Matrix->val[i];
+		//	nnz_col[k]++;
+		//	col_ind[tmp_ind][k] = Matrix->col_ind[i];
+		//	if (Matrix->row_ind[i + 1] == tmp_ind)
+		//	{
+		//		k++;
+		//	}
+		//	else
+		//	{
+		//		k = 0;
+		//	}
+		//}
+
+		//tmp_ind = Matrix->row_ind[NNZ - 1];
+		//val[tmp_ind][k] = Matrix->val[NNZ - 1];
+		//nnz_col[k]++;
+		//col_ind[tmp_ind][k] = Matrix->col_ind[NNZ - 1];
+
+		//nnz_row = (int*)malloc((N) * sizeof(int));
+		//nnz_row_ind = (int*)malloc((N) * sizeof(int));
+		//for (i = 0; i<N; i++)
+		//{
+		//	nnz_row[i] = Matrix->NNZ_row[i];
+		//	nnz_row_ind[i] = i;
+		//}
+
+		//qs(nnz_row, nnz_row_ind, 0, N - 1);
+
+		//JDIAGMATRIX* Mtx = new JDIAGMATRIX(N, NNZ, maxval);
+		//for (i = 0; i < N; i++)
+		//{
+		//	Mtx->perm[i] = nnz_row_ind[i];
+		//}
+
+		//int l = 0;
+
+		//for (i = 0; i < maxval; i++)
+		//{
+		//	for (j = 0; j < nnz_col[i]; j++)
+		//	{
+		//		Mtx->jdiag[l] = val[Mtx->perm[j]][i];
+		//		Mtx->col_ind[l] = col_ind[Mtx->perm[j]][i];
+		//		l++;
+		//	}
+		//}
+
+		//Mtx->jd_ptr[0] = 0;
+		////for (i = 1; i<maxval + 1; i++)
+		////{
+		////	Mtx->jd_ptr[i] = nnz_col[i - 1];
+		////}
+
+		//for (i = 1; i<N + 1; i++)
+		//{
+		//	Mtx->jd_ptr[i] = nnz_col[i - 1];
+		//}
+
+		///*for (i = 2; i<maxval + 1; i++)
+		//{
+		//Mtx->jd_ptr[i] += Mtx->jd_ptr[i - 1];
+		//}*/
+		//for (i = 2; i<N + 1; i++)
+		//{
+		//	Mtx->jd_ptr[i] += Mtx->jd_ptr[i - 1];
+		//}
+
+
+
+		//for (i = 0; i<N; i++)
+		//{
+		//	free(val[i]);
+		//	free(col_ind[i]);
+		//}
+		//free(val);
+		//free(col_ind);
+		//free(nnz_row);
+		//free(nnz_row_ind);
+		//free(nnz_col);
+		//free(row_ind);
+
+		//return Mtx;
 	}
 
-	static SLMatrix COOToSL(const COOMatrix Mtx, INTTYPE _diag, SLMatrix Matrix)
+	static SLMatrix COOToSL(const COOMatrix &Mtx, INTTYPE _diag, SLMatrix Matrix)
 	{
 		int i = 0, j = 0, k = 0, l = 0, NNZ = 0, N = 0, tmp_ind = 0, ad = 0, p = 0;
 		NNZ = Mtx.NNZ;
