@@ -139,7 +139,6 @@ public:
 	void COOMatrix::WriteInBinaryFile(COOMatrix Matrix)
 	{
 		FILE *COOmtx = NULL;
-		int number;
 		COOmtx = fopen("COOmtx.bin", "wb");
 		if (COOmtx == NULL)
 		{
@@ -215,6 +214,7 @@ public:
 			if (Matrix.row_ind[i] == Matrix.col_ind[i])
 				diagelem++;
 		}
+		return diagelem;
 	}
 
 };
@@ -293,7 +293,6 @@ public:
 	void CRSMatrix::WriteInBinaryFile(CRSMatrix Matrix)
 	{
 		FILE *CRSmtx = NULL;
-		int number;
 		CRSmtx = fopen("CRSmtx.bin", "wb");
 		if (CRSmtx == NULL)
 		{
@@ -428,7 +427,6 @@ public:
 	void CCSMatrix::WriteInBinaryFile(CCSMatrix Matrix)
 	{
 		FILE *CCSmtx = NULL;
-		int number;
 		CCSmtx = fopen("CCSmtx.bin", "wb");
 		if (CCSmtx == NULL)
 		{
@@ -796,6 +794,7 @@ public:
 
 class Converters
 {
+public:
 	static CRSMatrix COOToCRS(const COOMatrix &Mtx, CRSMatrix Matrix)
 	{
 		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, n = 0, m = 0;
@@ -970,12 +969,12 @@ class Converters
 
 	}
 
-	static SLMatrix COOToSL(const COOMatrix &Mtx, INTTYPE _diag, SLMatrix Matrix)
+	static SLMatrix COOToSL(const COOMatrix &Mtx, SLMatrix Matrix)
 	{
 		int i = 0, j = 0, k = 0, l = 0, NNZ = 0, N = 0, tmp_ind = 0, ad = 0, p = 0;
 		NNZ = Mtx.NNZ;
 		N = Mtx.N;
-		int diag = _diag;
+		//int diag = _diag;
 		vector< vector<double> > vec;
 		vec.resize(N);
 
@@ -1129,8 +1128,18 @@ double CheckCorrectness(double* my_mult, double* mkl_mult, int N)
 	return res;
 }
 
-int main()
+int main(int argc, char** argv)
 {
+
+	char *fileName;
+	//double timer;
+	INTTYPE i;
+	INTTYPE CDdiag;
+	INTTYPE maxvalJD;
+	INTTYPE diagelemSL;
+
+	FILE *fp = fopen("data.dt", "w");
+	FPTYPE* v;
 	FPTYPE* result_crs;
 	FPTYPE* result_ccs;
 	FPTYPE* result_cd;
@@ -1138,14 +1147,54 @@ int main()
 	FPTYPE* result_sl;
 	FPTYPE* result_mkl;
 
+	fileName = new char[256];
+	strcpy(fileName, argv[1]);
+	fprintf(fp, "Matrix file name: %s\n\n", fileName);
+
+
+	COOMatrix* Matrix = ReadMatrix(fileName);
+
+	//fprintf(fp, "Time Read Matrix Info: \t%lf\n\n", timer);
+
+	CRSMatrix *CRS = new CRSMatrix(Matrix->NNZ, Matrix->N);
+	//fprintf(fp, "Time Convert in \n\nCRS: \t\t%lf\n", timer);
+	CCSMatrix *CCS = new CCSMatrix(Matrix->NNZ, Matrix->N);
+	//fprintf(fp, "Time Convert in \n\nCCS: \t\t%lf\n", timer);
+	CDdiag = Matrix->DiagCDMatrix;
+	maxvalJD = Matrix->maxvalJDMatrix;
+	CDMatrix *CD = new CDMatrix(Matrix->NNZ, Matrix->N, CDdiag);
+	//fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", timer);
+	JDMatrix *JD = new JDMatrix(Matrix->NNZ, Matrix->N, maxvalJD);
+	//fprintf(fp, "Time Convert in \n\njagged diagonal: \t\t%lf\n", timer);
+	diagelemSL = Matrix->diagSLMatrix;
+	SLMatrix *SL = new SLMatrix(Matrix->NNZ, Matrix->N, diagelemSL);
+
+	v = new FPTYPE[Matrix->N];
+	for (int i = 0; i < Matrix->N; i++)
+	{
+		v[i] = 1;
+	}
+	result_crs = new FPTYPE[Matrix->N];
+	result_ccs = new FPTYPE[Matrix->N];
+	result_jd = new FPTYPE[Matrix->N];
+	result_cd = new FPTYPE[Matrix->N];
+	result_sl = new FPTYPE[Matrix->N];
+
+	Converters::COOToCCS(*Matrix, *CCS);
+	Converters::COOToCRS(*Matrix, *CRS);
+	Converters::COOToJD(*Matrix, *JD);
+	Converters::COOToCD(*Matrix, *CD);
+	Converters::COOToSL(*Matrix, *SL);
+		
+	
 
 
 
-	//delete[] result_crs;
-	//delete[] result_ccs;
-	//delete[] result_cd;
-	//delete[] result_jd;
-	//delete[] result_sl;
-	//delete[] result_mkl;
+	delete[] result_crs;
+	delete[] result_ccs;
+	delete[] result_cd;
+	delete[] result_jd;
+	delete[] result_sl;
+	delete[] result_mkl;
 	return 0;
 }
