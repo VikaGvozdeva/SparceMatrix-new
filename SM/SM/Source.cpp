@@ -11,8 +11,8 @@
 
 using namespace std;
 
-typedef int64_t INTTYPE;
-typedef int32_t INTTYPE32;
+typedef int32_t INTTYPE;
+typedef int64_t INTTYPE64;
 typedef double FPTYPE;
 
 #define MAX_LINE_LEN 1000000
@@ -249,7 +249,7 @@ public:
 
 	INTTYPE COOMatrix::DiagCDMatrix(COOMatrix Matrix)
 	{
-		int i, tmp_ind, diag_numb, m = 0, j;
+		int i, tmp_ind, m = 0, j;
 		bool flag;
 		NNZ = Matrix.NNZ;
 		N = Matrix.N;
@@ -765,7 +765,7 @@ public:
 	{
 		//
 	}
-	FPTYPE* JDMatrix::MatrixVectorMultCOO(JDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	FPTYPE* JDMatrix::MatrixVectorMultJD(JDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		int i = 0, j = 0, k = 0, NNZ = 0, tmp_ind = 0, maxval = 0, upper = 0;
 		NNZ = Matrix->NNZ;
@@ -953,12 +953,11 @@ public:
 		static void COOToCD(const COOMatrix &Mtx, CDMatrix Matrix)
 		{
 			int i = 0, j = 0, n, k = 0, l = 0, NNZ = 0, N = 0, diag_ind = 0, B = 0, tmp_ind = 0, m = 0, diag_numb = 0;
-			bool flag;
 			NNZ = Mtx.NNZ;
 			N = Mtx.N;
 			diag_numb = Matrix.B;
 
-			vector< vector<int> > val_;
+			vector< vector<FPTYPE> > val_;
 			val_.resize(diag_numb);
 			for (int i = 0; i < diag_numb; i++)
 			{
@@ -1003,9 +1002,9 @@ public:
 			NNZ = Mtx.NNZ;
 			N = Mtx.N;
 			maxval = Matrix.MaxNNZ;
-			vector< vector<int> > col_ind_;
+			vector< vector<INTTYPE> > col_ind_;
 			col_ind_.resize(N);
-			vector< vector<int> > val_;
+			vector< vector<FPTYPE> > val_;
 			val_.resize(N);
 			INTTYPE *nnz_row = new INTTYPE[N];
 			INTTYPE *nnz_col = new INTTYPE[N];
@@ -1072,7 +1071,7 @@ public:
 			NNZ = Mtx.NNZ;
 			N = Mtx.N;
 			//int diag = _diag;
-			vector< vector<double> > vec;
+			vector< vector<FPTYPE> > vec;
 			vec.resize(N);
 
 			INTTYPE* elem_before_diag = new INTTYPE[N];
@@ -1238,7 +1237,6 @@ int main(int argc, char** argv)
 
 	char *fileName;
 	//double timer;
-	INTTYPE i;
 	INTTYPE CDdiag;
 	INTTYPE maxvalJD;
 	INTTYPE diagelemSL;
@@ -1263,16 +1261,16 @@ int main(int argc, char** argv)
 	strcpy(fileName, argv[1]);
 	fprintf(fp, "Matrix file name: %s\n\n", fileName);
 
-//	Matrix->ReadFromBinaryFile("COO.bin");
+	//	Matrix->ReadFromBinaryFile("COO.bin");
 
-/*	if (COORead == false)
-	{
-	*/	startTime = getCPUTime();
-		Matrix = ReadMatrix(fileName);
-		endTime = getCPUTime();
-		fprintf(fp, "Time Read Matrix Info: \t%lf\n\n", endTime - startTime);
-		Matrix->WriteInBinaryFile(*Matrix);
-		COORead = true;
+	/*	if (COORead == false)
+		{
+		*/	startTime = getCPUTime();
+	Matrix = ReadMatrix(fileName);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Read Matrix Info: \t%lf\n\n", endTime - startTime);
+	Matrix->WriteInBinaryFile(*Matrix);
+	COORead = true;
 	//}
 
 
@@ -1300,67 +1298,125 @@ int main(int argc, char** argv)
 
 
 	Converters *Conv = new Converters();
-	startTime = getCPUTime();
-	//Converters::COOToCCS(*Matrix, *CCS);
-	Conv->COOToCCS(*Matrix, *CCS);
-	endTime = getCPUTime();
-	fprintf(fp, "Time Convert in \n\nCCS: \t\t%lf\n", endTime - startTime);
-
 	if (CCSBinary == false)
 	{
+		startTime = getCPUTime();
+		Conv->COOToCCS(*Matrix, *CCS);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\nCCS: \t\t%lf\n", endTime - startTime);
 		CCS->WriteInBinaryFile(*CCS);
 		CCSBinary = true;
 	}
+	else
+	{
+		CCS->ReadFromBinaryFile("CCS.bin");
+	}
 
-	startTime = getCPUTime();
-	//Converters::COOToCRS(*Matrix, *CRS);
-	Conv->COOToCRS(*Matrix, *CRS);
-	endTime = getCPUTime();
-	fprintf(fp, "Time Convert in \n\nCRS: \t\t%lf\n", endTime - startTime);
 
+	/*if (CCSBinary == false)
+	{
+		CCS->WriteInBinaryFile(*CCS);
+		CCSBinary = true;
+	}*/
 	if (CRSBinary == false)
 	{
+		startTime = getCPUTime();
+		Conv->COOToCRS(*Matrix, *CRS);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\nCRS: \t\t%lf\n", endTime - startTime);
 		CRS->WriteInBinaryFile(*CRS);
 		CRSBinary = true;
 	}
+	else 
+	{
+		CRS->ReadFromBinaryFile("CRS.bin");
+	}
 
-	startTime = getCPUTime();
-	//Converters::COOToJD(*Matrix, *JD);
-	Conv->COOToJD(*Matrix, *JD);
-	endTime = getCPUTime();
-	fprintf(fp, "Time Convert in \n\njagged diagonal: \t\t%lf\n", endTime - startTime);
-	
 	if (JDBinary == false)
 	{
+		startTime = getCPUTime();
+		Conv->COOToJD(*Matrix, *JD);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\njagged diagonal: \t\t%lf\n", endTime - startTime);
 		JD->WriteInBinaryFile(*JD);
 		JDBinary = true;
 	}
+	else
+	{
+		JD->ReadFromBinaryFile("JD.bin");
+	}
 
-	startTime = getCPUTime();
-	//Converters::COOToCD(*Matrix, *CD);
-	Conv->COOToCD(*Matrix, *CD);
-	endTime = getCPUTime();
-	fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
-	
 	if (CDBinary == false)
 	{
+		startTime = getCPUTime();
+		Conv->COOToCD(*Matrix, *CD);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
 		CD->WriteInBinaryFile(*CD);
 		CDBinary = true;
 	}
-
-	startTime = getCPUTime();
-	//Converters::COOToSL(*Matrix, *SL);
-	Conv->COOToSL(*Matrix, *SL);
-	endTime = getCPUTime();
-	fprintf(fp, "Time Convert in \n\nSL: \t\t%lf\n", endTime - startTime);
+	else
+	{
+		CD->ReadFromBinaryFile("CD.bin");
+	}
 
 	if (SLBinary == false)
 	{
+		startTime = getCPUTime();
+		Conv->COOToSL(*Matrix, *SL);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\nSL: \t\t%lf\n", endTime - startTime);
 		SL->WriteInBinaryFile(*SL);
 		SLBinary = true;
 	}
+	if (SLBinary == false)
+	{
+		SL->ReadFromBinaryFile("SL.bin");
+	}
 
-		
+
+	startTime = getCPUTime();
+	CCS->MatrixVectorMultCCS(CCS, v, Matrix->N,result_ccs);
+	endTime = getCPUTime();
+	fprintf(fp, "\nTime Matrix-Vector multiplication in \n\nCCS: \t\t%lf\n", endTime - startTime);
+
+	
+	startTime = getCPUTime();
+	CRS->MatrixVectorMultCRS(CRS, v, Matrix->N, result_crs);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCRS: \t%lf\n", endTime - startTime);
+
+	//printf("difference %.15f\n", CheckCorrectness(result, result_mkl, Matrix->N));
+
+	startTime = getCPUTime();
+	JD->MatrixVectorMultJD(JD, v, Matrix->N, result_jd);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Matrix-Vector multiplication in \n\nJD", endTime - startTime);
+
+	//printf("difference %.15f\n", CheckCorrectness(result, result_mkl, Matrix->N));
+
+	startTime = getCPUTime();
+	CD->MatrixVectorMultCD(CD, v, Matrix->N, result_cd);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCD", endTime - startTime);
+
+	for (int i = 0; i < Matrix->N + 1; i++)
+	{
+		CRS->row_ptr[i]++;
+	}
+	for (int i = 0; i < Matrix->NNZ; i++)
+	{
+		CRS->col_ind[i]++;
+	}
+
+	startTime = getCPUTime();
+	mkl_dcsrgemv("N", &CRS->N, CRS->val, CRS->row_ptr, CRS->col_ind, v, result_mkl);
+	endTime = getCPUTime();
+
+	fprintf(fp, "\nTime Matrix-Vector multiplication in \n\nMKL CRS: \t\t%lf\n", endTime - startTime);
+
+
+
 	delete[] result_crs;
 	delete[] result_ccs;
 	delete[] result_cd;
