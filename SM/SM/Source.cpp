@@ -641,7 +641,21 @@ public:
 	}
 	CDMatrix *CDMatrix::ReadFromBinaryFile(char *filename)
 	{
-		//
+		FILE *CDmtx = NULL;
+		int N, NNZ;
+		CDmtx = fopen("CDmtx.bin", "rb");
+		if (CDmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fread(&N, sizeof(INTTYPE), 1, CDmtx);
+		fread(&NNZ, sizeof(INTTYPE), 1, CDmtx);
+		fread(&B, sizeof(INTTYPE), 1, CDmtx);
+		CDMatrix * Matrix = new CDMatrix(NNZ, N, B);
+		fread(Matrix->diag, sizeof(INTTYPE), Matrix->B, CDmtx);
+		fread(Matrix->val, sizeof(FPTYPE), Matrix->B * Matrix->N, CDmtx);
+		fclose(CDmtx);
+		return Matrix;
 	}
 	void CDMatrix::FillDiagArray(COOMatrix Matrix)
 	{
@@ -682,7 +696,18 @@ public:
 	}
 	void CDMatrix::WriteInBinaryFile(CDMatrix Matrix)
 	{
-		//
+		FILE *CDmtx = NULL;
+		CDmtx = fopen("CDmtx.bin", "wb");
+		if (CDmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fwrite(&Matrix.N, sizeof(INTTYPE), 1, CDmtx);
+		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, CDmtx);
+		fwrite(&Matrix.B, sizeof(INTTYPE), 1, CDmtx);
+		fwrite(Matrix.diag, sizeof(INTTYPE), Matrix.B, CDmtx);
+		fwrite(Matrix.val, sizeof(INTTYPE), Matrix.B * Matrix.N, CDmtx);
+		fclose(CDmtx);
 	}
 	FPTYPE* CDMatrix::MatrixVectorMultCD(CDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
@@ -759,11 +784,42 @@ public:
 	}
 	JDMatrix *JDMatrix::ReadFromBinaryFile(char *filename)
 	{
-		//
+		FILE *JDmtx = NULL;
+		int N, NNZ;
+		JDmtx = fopen("JDmtx.bin", "rb");
+		if (JDmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fread(&N, sizeof(INTTYPE), 1, JDmtx);
+		fread(&NNZ, sizeof(INTTYPE), 1, JDmtx);
+		fread(&MaxNNZ, sizeof(INTTYPE), 1, JDmtx);
+		JDMatrix * Matrix = new JDMatrix(NNZ, N, MaxNNZ);
+		fread(Matrix->jdiag, sizeof(FPTYPE), Matrix->NNZ, JDmtx);
+		fread(Matrix->col_ind, sizeof(INTTYPE), Matrix->NNZ, JDmtx);
+		fread(Matrix->jd_ptr, sizeof(INTTYPE), Matrix->N + 1, JDmtx);
+		fread(Matrix->perm, sizeof(INTTYPE), Matrix->N, JDmtx);
+		fclose(JDmtx);
+		return Matrix;
+	
 	}
 	void JDMatrix::WriteInBinaryFile(JDMatrix Matrix)
 	{
-		//
+
+		FILE *JDmtx = NULL;
+		JDmtx = fopen("JDmtx.bin", "wb");
+		if (JDmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fwrite(&Matrix.N, sizeof(INTTYPE), 1, JDmtx);
+		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, JDmtx);
+		fwrite(&Matrix.MaxNNZ, sizeof(INTTYPE), 1, JDmtx);
+		fwrite(Matrix.jdiag, sizeof(FPTYPE), Matrix.NNZ, JDmtx);
+		fwrite(Matrix.col_ind, sizeof(INTTYPE), Matrix.NNZ, JDmtx);
+		fwrite(Matrix.jd_ptr, sizeof(INTTYPE), Matrix.N + 1, JDmtx);
+		fwrite(Matrix.perm, sizeof(INTTYPE), Matrix.N, JDmtx);
+		fclose(JDmtx);
 	}
 	FPTYPE* JDMatrix::MatrixVectorMultJD(JDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
@@ -857,11 +913,44 @@ public:
 	}
 	SLMatrix *SLMatrix::ReadFromBinaryFile(char *filename)
 	{
-		//
+
+		FILE *SLmtx = NULL;
+		int N, NNZ;
+		SLmtx = fopen("SLmtx.bin", "rb");
+		if (SLmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fread(&N, sizeof(INTTYPE), 1, SLmtx);
+		fread(&NNZ, sizeof(INTTYPE), 1, SLmtx);
+		fread(&diag, sizeof(INTTYPE), 1, SLmtx);
+		SLMatrix * Matrix = new SLMatrix(NNZ, N, diag);
+		fread(Matrix->adiag, sizeof(FPTYPE), Matrix->N, SLmtx);
+		fread(Matrix->altr, sizeof(FPTYPE), (Matrix->NNZ - Matrix->diag) / 2, SLmtx);
+		fread(Matrix->autr, sizeof(FPTYPE), (Matrix->NNZ - Matrix->diag) / 2, SLmtx);
+		fread(Matrix->jptr, sizeof(INTTYPE), (Matrix->NNZ - Matrix->diag) / 2, SLmtx);
+		fread(Matrix->iptr, sizeof(INTTYPE), Matrix->N + 1, SLmtx);
+		fclose(SLmtx);
+		return Matrix;
+	
 	}
 	void SLMatrix::WriteInBinaryFile(SLMatrix Matrix)
 	{
-		//
+		FILE *SLmtx = NULL;
+		SLmtx = fopen("SLmtx.bin", "wb");
+		if (SLmtx == NULL)
+		{
+			printf("Error opening file");
+		}
+		fwrite(&Matrix.N, sizeof(INTTYPE), 1, SLmtx);
+		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, SLmtx);
+		fwrite(&Matrix.diag, sizeof(INTTYPE), 1, SLmtx);
+		fwrite(Matrix.adiag, sizeof(FPTYPE), Matrix.N, SLmtx);
+		fwrite(Matrix.altr, sizeof(FPTYPE), (Matrix.NNZ - Matrix.diag)/2, SLmtx);
+		fwrite(Matrix.autr, sizeof(FPTYPE), (Matrix.NNZ - Matrix.diag) / 2, SLmtx);
+		fwrite(Matrix.jptr, sizeof(INTTYPE), (Matrix.NNZ - Matrix.diag) / 2, SLmtx);
+		fwrite(Matrix.iptr, sizeof(INTTYPE), Matrix.N + 1, SLmtx);
+		fclose(SLmtx);
 	}
 	FPTYPE* SLMatrix::MatrixVectorMultSL(SLMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
