@@ -1402,11 +1402,6 @@ int main(int argc, char** argv)
 	}
 
 
-	/*if (CCSBinary == false)
-	{
-		CCS->WriteInBinaryFile(*CCS);
-		CCSBinary = true;
-	}*/
 	if (CRSBinary == false)
 	{
 		startTime = getCPUTime();
@@ -1475,14 +1470,13 @@ int main(int argc, char** argv)
 	endTime = getCPUTime();
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCRS: \t%lf\n", endTime - startTime);
 
-	//printf("difference %.15f\n", CheckCorrectness(result, result_mkl, Matrix->N));
 
 	startTime = getCPUTime();
 	JD->MatrixVectorMultJD(JD, v, Matrix->N, result_jd);
 	endTime = getCPUTime();
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nJD", endTime - startTime);
 
-	//printf("difference %.15f\n", CheckCorrectness(result, result_mkl, Matrix->N));
+	
 
 	startTime = getCPUTime();
 	CD->MatrixVectorMultCD(CD, v, Matrix->N, result_cd);
