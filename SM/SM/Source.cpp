@@ -16,6 +16,99 @@ typedef int32_t INTTYPE32;
 typedef double FPTYPE;
 
 #define MAX_LINE_LEN 1000000
+#if defined(_WIN32)
+#include <Windows.h>
+
+#elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
+#include <unistd.h>
+#include <sys/resource.h>
+#include <sys/times.h>
+#include <time.h>
+
+#else
+#error "Unable to define getCPUTime( ) for an unknown OS."
+#endif
+
+/**
+* Returns the amount of CPU time used by the current process,
+* in seconds, or -1.0 if an error occurred.
+*/
+double getCPUTime()
+{
+#if defined(_WIN32)
+	/* Windows -------------------------------------------------- */
+	FILETIME createTime;
+	FILETIME exitTime;
+	FILETIME kernelTime;
+	FILETIME userTime;
+	if (GetProcessTimes(GetCurrentProcess(),
+		&createTime, &exitTime, &kernelTime, &userTime) != -1)
+	{
+		SYSTEMTIME userSystemTime;
+		if (FileTimeToSystemTime(&userTime, &userSystemTime) != -1)
+			return (double)userSystemTime.wHour * 3600.0 +
+			(double)userSystemTime.wMinute * 60.0 +
+			(double)userSystemTime.wSecond +
+			(double)userSystemTime.wMilliseconds / 1000.0;
+	}
+
+#elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
+	/* AIX, BSD, Cygwin, HP-UX, Linux, OSX, and Solaris --------- */
+
+#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
+	/* Prefer high-res POSIX timers, when available. */
+	{
+		clockid_t id;
+		struct timespec ts;
+#if _POSIX_CPUTIME > 0
+		/* Clock ids vary by OS.  Query the id, if possible. */
+		if (clock_getcpuclockid(0, &id) == -1)
+#endif
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+			/* Use known clock id for AIX, Linux, or Solaris. */
+			id = CLOCK_PROCESS_CPUTIME_ID;
+#elif defined(CLOCK_VIRTUAL)
+			/* Use known clock id for BSD or HP-UX. */
+			id = CLOCK_VIRTUAL;
+#else
+			id = (clockid_t)-1;
+#endif
+		if (id != (clockid_t)-1 && clock_gettime(id, &ts) != -1)
+			return (double)ts.tv_sec +
+			(double)ts.tv_nsec / 1000000000.0;
+	}
+#endif
+
+#if defined(RUSAGE_SELF)
+	{
+		struct rusage rusage;
+		if (getrusage(RUSAGE_SELF, &rusage) != -1)
+			return (double)rusage.ru_utime.tv_sec +
+			(double)rusage.ru_utime.tv_usec / 1000000.0;
+	}
+#endif
+
+#if defined(_SC_CLK_TCK)
+	{
+		const double ticks = (double)sysconf(_SC_CLK_TCK);
+		struct tms tms;
+		if (times(&tms) != (clock_t)-1)
+			return (double)tms.tms_utime / ticks;
+	}
+#endif
+
+#if defined(CLOCKS_PER_SEC)
+	{
+		clock_t cl = clock();
+		if (cl != (clock_t)-1)
+			return (double)cl / (double)CLOCKS_PER_SEC;
+	}
+#endif
+
+#endif
+
+	return -1;      /* Failed. */
+}
 
 
 void qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
@@ -66,6 +159,8 @@ public:
 	INTTYPE *row_ind;
 	INTTYPE *col_ind;
 	INTTYPE *NNZ_row;
+	INTTYPE diag_cd;
+	INTTYPE maxval_jd;
 
 	COOMatrix::COOMatrix(INTTYPE  _NNZ, INTTYPE _N)
 	{
@@ -154,7 +249,7 @@ public:
 
 	INTTYPE COOMatrix::DiagCDMatrix(COOMatrix Matrix)
 	{
-		int i, tmp_ind, diag_numb, m, j;
+		int i, tmp_ind, diag_numb, m = 0, j;
 		bool flag;
 		NNZ = Matrix.NNZ;
 		N = Matrix.N;
@@ -189,8 +284,8 @@ public:
 
 		}
 
-		diag_numb = m;
-		return diag_numb;
+		diag_cd = m;
+		return diag_cd;
 	}
 
 	INTTYPE COOMatrix::maxvalJDMatrix(COOMatrix Matrix)
@@ -204,6 +299,7 @@ public:
 				maxval = Matrix.NNZ_row[i];
 			}
 		}
+		maxval_jd = maxval;
 		return maxval;
 	}
 	INTTYPE COOMatrix::diagSLMatrix(COOMatrix Matrix)
@@ -795,225 +891,226 @@ public:
 class Converters
 {
 public:
-	static CRSMatrix COOToCRS(const COOMatrix &Mtx, CRSMatrix Matrix)
-	{
-		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, n = 0, m = 0;
-		NNZ = Mtx.NNZ;
-		N = Mtx.N;
-		vector< vector<int> > col_ind_;
-		col_ind_.resize(N);
-		vector< vector<double> > val_;
-		val_.resize(N);
-
-		for (i = 0; i < NNZ; i++)
+	
+		static void COOToCRS(const COOMatrix &Mtx, CRSMatrix Matrix)
 		{
-			val_[Mtx.row_ind[i]].push_back(Mtx.val[i]);
-			col_ind_[Mtx.row_ind[i]].push_back(Mtx.col_ind[i]);
-			Matrix.row_ptr[Mtx.row_ind[i] + 1]++;
-		}
+			int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, n = 0, m = 0;
+			NNZ = Mtx.NNZ;
+			N = Mtx.N;
+			vector< vector<int> > col_ind_;
+			col_ind_.resize(N);
+			vector< vector<double> > val_;
+			val_.resize(N);
 
-		for (k = 2; k < N + 1; k++)
-		{
-			Matrix.row_ptr[k] += Matrix.row_ptr[k - 1];
-		}
-
-		for (m = 0; m < N; m++) {
-			k = 0;
-			for (n = Matrix.row_ptr[m]; n < Matrix.row_ptr[m + 1]; n++)
+			for (i = 0; i < NNZ; i++)
 			{
-				Matrix.val[n] = val_[m][k];
-				Matrix.col_ind[n] = col_ind_[m][k];
-				k++;
+				val_[Mtx.row_ind[i]].push_back(Mtx.val[i]);
+				col_ind_[Mtx.row_ind[i]].push_back(Mtx.col_ind[i]);
+				Matrix.row_ptr[Mtx.row_ind[i] + 1]++;
 			}
-		}
-	}
 
-	static CCSMatrix COOToCCS(const COOMatrix &Mtx, CCSMatrix Matrix)
-	{
-		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0;
-		NNZ = Mtx.NNZ;
-		N = Mtx.N;
-
-		for (i = 0; i < NNZ; i++)
-		{
-			Matrix.val[i] = Mtx.val[i];
-			Matrix.row_ind[i] = Mtx.row_ind[i];
-		}
-
-		for (j = 0; j < NNZ; j++)
-		{
-			tmp_ind = Mtx.col_ind[j];
-			Matrix.col_ptr[++tmp_ind]++;
-		}
-		while (j < NNZ);
-
-		for (k = 2; k < N + 1; k++)
-		{
-			Matrix.col_ptr[k] += Matrix.col_ptr[k - 1];
-		}
-	}
-
-	static CDMatrix COOToCD(const COOMatrix &Mtx, CDMatrix Matrix)
-	{
-		int i = 0, j = 0, n, k = 0, l = 0, NNZ = 0, N = 0, diag_ind = 0, B = 0, tmp_ind = 0, m = 0, diag_numb = 0;
-		bool flag;
-		NNZ = Mtx.NNZ;
-		N = Mtx.N;
-		diag_numb = Matrix.B;
-
-		vector< vector<int> > val_;
-		val_.resize(diag_numb);
-		for (int i = 0; i < diag_numb; i++)
-		{
-			val_[i].push_back(Matrix.diag[i]);
-		}
-
-		for (i = 0; i < NNZ; i++)
-		{
-			tmp_ind = Mtx.col_ind[i] - Mtx.row_ind[i];
-			for (j = 0; j < diag_numb; j++)
+			for (k = 2; k < N + 1; k++)
 			{
-				if (tmp_ind == val_[j][0])
-					val_[j].push_back(Mtx.val[i]);
+				Matrix.row_ptr[k] += Matrix.row_ptr[k - 1];
 			}
-		}
-		INTTYPE *diag_ptr = new INTTYPE[diag_numb+1];
-		diag_ptr[0] = 0;
-		for (int j = 1; j < diag_numb+1; j++)
-		{
-			diag_ptr[j] = val_[j-1].size() - 1;
-		}
-		for (k = 2; k < diag_numb + 1; k++)
-		{
-			diag_ptr[k] += diag_ptr[k - 1];
-		}
-		for (m = 0; m < diag_numb; m++) {
-			k = 0;
-			int p = 0;
-			for (n = diag_ptr[m]; n < diag_ptr[m + 1]; n++)
-			{
-				Matrix.val[k][p] = val_[k][p + 1];
-				p++;
+
+			for (m = 0; m < N; m++) {
+				k = 0;
+				for (n = Matrix.row_ptr[m]; n < Matrix.row_ptr[m + 1]; n++)
+				{
+					Matrix.val[n] = val_[m][k];
+					Matrix.col_ind[n] = col_ind_[m][k];
+					k++;
+				}
 			}
 		}
 
-		delete[] diag_ptr;
-	}
-
-	static JDMatrix COOToJD(const COOMatrix &Mtx, JDMatrix Matrix)
-	{
-		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, maxval = 0;
-		NNZ = Mtx.NNZ;
-		N = Mtx.N;
-		maxval = Matrix.MaxNNZ;
-		vector< vector<int> > col_ind_;
-		col_ind_.resize(N);
-		vector< vector<int> > val_;
-		val_.resize(N);
-		INTTYPE *nnz_row = new INTTYPE[N];
-		INTTYPE *nnz_col = new INTTYPE[N];
-		INTTYPE *nnz_row_ind = new INTTYPE[N];
-
-		for (i = 0; i < N; i++)
+		static void COOToCCS(const COOMatrix &Mtx, CCSMatrix Matrix)
 		{
-			nnz_row[i] = Mtx.NNZ_row[i];
-			nnz_row_ind[i] = i;
-			nnz_col[i] = 0;
-		}
+			int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0;
+			NNZ = Mtx.NNZ;
+			N = Mtx.N;
 
-		qs(nnz_row, nnz_row_ind, 0, N - 1);
-
-		for (i = 0; i < N; i++)
-		{
-			Matrix.perm[i] = nnz_row_ind[i];
-		}
-		for (i = 0; i < NNZ; i++)
-		{
-			val_[Mtx.row_ind[i]].push_back(Mtx.val[i]);
-			col_ind_[Mtx.row_ind[i]].push_back(Mtx.col_ind[i]);
-		}
-		for (int i = 0; i < N; i++)
-		{
-			int temp_nnz_col = val_[i].size();
-			for (int k = 0; k < temp_nnz_col; k++)
+			for (i = 0; i < NNZ; i++)
 			{
-				nnz_col[k]++;
+				Matrix.val[i] = Mtx.val[i];
+				Matrix.row_ind[i] = Mtx.row_ind[i];
+			}
+
+			for (j = 0; j < NNZ; j++)
+			{
+				tmp_ind = Mtx.col_ind[j];
+				Matrix.col_ptr[++tmp_ind]++;
+			}
+			while (j < NNZ);
+
+			for (k = 2; k < N + 1; k++)
+			{
+				Matrix.col_ptr[k] += Matrix.col_ptr[k - 1];
 			}
 		}
 
-		int l = 0;
-
-		for (i = 0; i < N; i++)
+		static void COOToCD(const COOMatrix &Mtx, CDMatrix Matrix)
 		{
-			for (j = 0; j < nnz_col[i]; j++)
+			int i = 0, j = 0, n, k = 0, l = 0, NNZ = 0, N = 0, diag_ind = 0, B = 0, tmp_ind = 0, m = 0, diag_numb = 0;
+			bool flag;
+			NNZ = Mtx.NNZ;
+			N = Mtx.N;
+			diag_numb = Matrix.B;
+
+			vector< vector<int> > val_;
+			val_.resize(diag_numb);
+			for (int i = 0; i < diag_numb; i++)
 			{
-				Matrix.jdiag[l] = val_[Matrix.perm[j]][l];
-				Matrix.col_ind[l] = col_ind_[Matrix.perm[j]][l];
-				l++;
-			}
-		}
-		Matrix.jd_ptr[0] = 0;
-		for (i = 1; i < N + 1; i++)
-		{
-			Matrix.jd_ptr[i] = nnz_col[i - 1];
-		}
-
-		for (i = 2; i < N + 1; i++)
-		{
-			Matrix.jd_ptr[i] += Matrix.jd_ptr[i - 1];
-		}
-
-		delete[] nnz_row;
-		delete[] nnz_col;
-		delete[] nnz_row_ind;
-
-	}
-
-	static SLMatrix COOToSL(const COOMatrix &Mtx, SLMatrix Matrix)
-	{
-		int i = 0, j = 0, k = 0, l = 0, NNZ = 0, N = 0, tmp_ind = 0, ad = 0, p = 0;
-		NNZ = Mtx.NNZ;
-		N = Mtx.N;
-		//int diag = _diag;
-		vector< vector<double> > vec;
-		vec.resize(N);
-
-		INTTYPE* elem_before_diag = new INTTYPE[N];
-		for (int i = 0; i < N; i++)
-		{
-			elem_before_diag[i] = 0;
-		}
-
-		for (i = 0; i < NNZ; i++)
-		{
-			if (Mtx.col_ind[i] == Mtx.row_ind[i])
-			{
-				Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
-			}
-			else if (Mtx.col_ind[i] > Mtx.row_ind[i])
-			{
-				Matrix.autr[j++] = Mtx.val[i];
-				Matrix.jptr[l++] = Mtx.row_ind[i];
-			}
-			else if ((Mtx.col_ind[i]) < (Mtx.row_ind[i]))
-			{
-				vec[Mtx.row_ind[i]].push_back(Mtx.val[i]);
-				elem_before_diag[Mtx.row_ind[i] + 1]++;
-			}
-		}
-		int m = 0;
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < elem_before_diag[j]; j++)
-			{
-				Matrix.altr[m++] = vec[i][j];
+				val_[i].push_back(Matrix.diag[i]);
 			}
 
-		for (p = 2; p < N + 1; p++)
-		{
-			Matrix.iptr[p] += Matrix.iptr[p - 1];
+			for (i = 0; i < NNZ; i++)
+			{
+				tmp_ind = Mtx.col_ind[i] - Mtx.row_ind[i];
+				for (j = 0; j < diag_numb; j++)
+				{
+					if (tmp_ind == val_[j][0])
+						val_[j].push_back(Mtx.val[i]);
+				}
+			}
+			INTTYPE *diag_ptr = new INTTYPE[diag_numb + 1];
+			diag_ptr[0] = 0;
+			for (int j = 1; j < diag_numb + 1; j++)
+			{
+				diag_ptr[j] = val_[j - 1].size() - 1;
+			}
+			for (k = 2; k < diag_numb + 1; k++)
+			{
+				diag_ptr[k] += diag_ptr[k - 1];
+			}
+			for (m = 0; m < diag_numb; m++) {
+				k = 0;
+				int p = 0;
+				for (n = diag_ptr[m]; n < diag_ptr[m + 1]; n++)
+				{
+					Matrix.val[k][p] = val_[k][p + 1];
+					p++;
+				}
+			}
+
+			delete[] diag_ptr;
 		}
-		delete[] elem_before_diag;
-	}
+
+		static void COOToJD(const COOMatrix &Mtx, JDMatrix Matrix)
+		{
+			int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, maxval = 0;
+			NNZ = Mtx.NNZ;
+			N = Mtx.N;
+			maxval = Matrix.MaxNNZ;
+			vector< vector<int> > col_ind_;
+			col_ind_.resize(N);
+			vector< vector<int> > val_;
+			val_.resize(N);
+			INTTYPE *nnz_row = new INTTYPE[N];
+			INTTYPE *nnz_col = new INTTYPE[N];
+			INTTYPE *nnz_row_ind = new INTTYPE[N];
+
+			for (i = 0; i < N; i++)
+			{
+				nnz_row[i] = Mtx.NNZ_row[i];
+				nnz_row_ind[i] = i;
+				nnz_col[i] = 0;
+			}
+
+			qs(nnz_row, nnz_row_ind, 0, N - 1);
+
+			for (i = 0; i < N; i++)
+			{
+				Matrix.perm[i] = nnz_row_ind[i];
+			}
+			for (i = 0; i < NNZ; i++)
+			{
+				val_[Mtx.row_ind[i]].push_back(Mtx.val[i]);
+				col_ind_[Mtx.row_ind[i]].push_back(Mtx.col_ind[i]);
+			}
+			for (int i = 0; i < N; i++)
+			{
+				int temp_nnz_col = val_[i].size();
+				for (int k = 0; k < temp_nnz_col; k++)
+				{
+					nnz_col[k]++;
+				}
+			}
+
+			int l = 0;
+
+			for (i = 0; i < N; i++)
+			{
+				for (j = 0; j < nnz_col[i]; j++)
+				{
+					Matrix.jdiag[l] = val_[Matrix.perm[j]][l];
+					Matrix.col_ind[l] = col_ind_[Matrix.perm[j]][l];
+					l++;
+				}
+			}
+			Matrix.jd_ptr[0] = 0;
+			for (i = 1; i < N + 1; i++)
+			{
+				Matrix.jd_ptr[i] = nnz_col[i - 1];
+			}
+
+			for (i = 2; i < N + 1; i++)
+			{
+				Matrix.jd_ptr[i] += Matrix.jd_ptr[i - 1];
+			}
+
+			delete[] nnz_row;
+			delete[] nnz_col;
+			delete[] nnz_row_ind;
+
+		}
+
+		static void COOToSL(const COOMatrix &Mtx, SLMatrix Matrix)
+		{
+			int i = 0, j = 0, k = 0, l = 0, NNZ = 0, N = 0, tmp_ind = 0, ad = 0, p = 0;
+			NNZ = Mtx.NNZ;
+			N = Mtx.N;
+			//int diag = _diag;
+			vector< vector<double> > vec;
+			vec.resize(N);
+
+			INTTYPE* elem_before_diag = new INTTYPE[N];
+			for (int i = 0; i < N; i++)
+			{
+				elem_before_diag[i] = 0;
+			}
+
+			for (i = 0; i < NNZ; i++)
+			{
+				if (Mtx.col_ind[i] == Mtx.row_ind[i])
+				{
+					Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
+				}
+				else if (Mtx.col_ind[i] > Mtx.row_ind[i])
+				{
+					Matrix.autr[j++] = Mtx.val[i];
+					Matrix.jptr[l++] = Mtx.row_ind[i];
+				}
+				else if ((Mtx.col_ind[i]) < (Mtx.row_ind[i]))
+				{
+					vec[Mtx.row_ind[i]].push_back(Mtx.val[i]);
+					elem_before_diag[Mtx.row_ind[i] + 1]++;
+				}
+			}
+			int m = 0;
+			for (int i = 0; i < N; i++)
+				for (int j = 0; j < elem_before_diag[j]; j++)
+				{
+					Matrix.altr[m++] = vec[i][j];
+				}
+
+			for (p = 2; p < N + 1; p++)
+			{
+				Matrix.iptr[p] += Matrix.iptr[p - 1];
+			}
+			delete[] elem_before_diag;
+		}
 };
 
 void ReadMatrixInfo(COOMatrix& Matrix, char *name)
@@ -1130,6 +1227,14 @@ double CheckCorrectness(double* my_mult, double* mkl_mult, int N)
 
 int main(int argc, char** argv)
 {
+	FPTYPE startTime, endTime;
+	static bool COORead = false;
+	static bool COOBinary = false;
+	static bool CRSBinary = false;
+	static bool CCSBinary = false;
+	static bool CDBinary = false;
+	static bool JDBinary = false;
+	static bool SLBinary = false;
 
 	char *fileName;
 	//double timer;
@@ -1147,27 +1252,39 @@ int main(int argc, char** argv)
 	FPTYPE* result_sl;
 	FPTYPE* result_mkl;
 
+	COOMatrix* Matrix;
+	CRSMatrix *CRS;
+	CCSMatrix *CCS;
+	CDMatrix *CD;
+	JDMatrix *JD;
+	SLMatrix *SL;
+
 	fileName = new char[256];
 	strcpy(fileName, argv[1]);
 	fprintf(fp, "Matrix file name: %s\n\n", fileName);
 
+//	Matrix->ReadFromBinaryFile("COO.bin");
 
-	COOMatrix* Matrix = ReadMatrix(fileName);
+/*	if (COORead == false)
+	{
+	*/	startTime = getCPUTime();
+		Matrix = ReadMatrix(fileName);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Read Matrix Info: \t%lf\n\n", endTime - startTime);
+		Matrix->WriteInBinaryFile(*Matrix);
+		COORead = true;
+	//}
 
-	//fprintf(fp, "Time Read Matrix Info: \t%lf\n\n", timer);
 
-	CRSMatrix *CRS = new CRSMatrix(Matrix->NNZ, Matrix->N);
-	//fprintf(fp, "Time Convert in \n\nCRS: \t\t%lf\n", timer);
-	CCSMatrix *CCS = new CCSMatrix(Matrix->NNZ, Matrix->N);
-	//fprintf(fp, "Time Convert in \n\nCCS: \t\t%lf\n", timer);
-	CDdiag = Matrix->DiagCDMatrix;
-	maxvalJD = Matrix->maxvalJDMatrix;
-	CDMatrix *CD = new CDMatrix(Matrix->NNZ, Matrix->N, CDdiag);
-	//fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", timer);
-	JDMatrix *JD = new JDMatrix(Matrix->NNZ, Matrix->N, maxvalJD);
-	//fprintf(fp, "Time Convert in \n\njagged diagonal: \t\t%lf\n", timer);
-	diagelemSL = Matrix->diagSLMatrix;
-	SLMatrix *SL = new SLMatrix(Matrix->NNZ, Matrix->N, diagelemSL);
+
+	CRS = new CRSMatrix(Matrix->NNZ, Matrix->N);
+	CCS = new CCSMatrix(Matrix->NNZ, Matrix->N);
+	CDdiag = Matrix->DiagCDMatrix(*Matrix);
+	maxvalJD = Matrix->maxvalJDMatrix(*Matrix);
+	CD = new CDMatrix(Matrix->NNZ, Matrix->N, CDdiag);
+	JD = new JDMatrix(Matrix->NNZ, Matrix->N, maxvalJD);
+	diagelemSL = Matrix->diagSLMatrix(*Matrix);
+	SL = new SLMatrix(Matrix->NNZ, Matrix->N, diagelemSL);
 
 	v = new FPTYPE[Matrix->N];
 	for (int i = 0; i < Matrix->N; i++)
@@ -1179,17 +1296,71 @@ int main(int argc, char** argv)
 	result_jd = new FPTYPE[Matrix->N];
 	result_cd = new FPTYPE[Matrix->N];
 	result_sl = new FPTYPE[Matrix->N];
+	result_mkl = new FPTYPE[Matrix->N];
 
-	Converters::COOToCCS(*Matrix, *CCS);
-	Converters::COOToCRS(*Matrix, *CRS);
-	Converters::COOToJD(*Matrix, *JD);
-	Converters::COOToCD(*Matrix, *CD);
-	Converters::COOToSL(*Matrix, *SL);
-		
+
+	Converters *Conv = new Converters();
+	startTime = getCPUTime();
+	//Converters::COOToCCS(*Matrix, *CCS);
+	Conv->COOToCCS(*Matrix, *CCS);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Convert in \n\nCCS: \t\t%lf\n", endTime - startTime);
+
+	if (CCSBinary == false)
+	{
+		CCS->WriteInBinaryFile(*CCS);
+		CCSBinary = true;
+	}
+
+	startTime = getCPUTime();
+	//Converters::COOToCRS(*Matrix, *CRS);
+	Conv->COOToCRS(*Matrix, *CRS);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Convert in \n\nCRS: \t\t%lf\n", endTime - startTime);
+
+	if (CRSBinary == false)
+	{
+		CRS->WriteInBinaryFile(*CRS);
+		CRSBinary = true;
+	}
+
+	startTime = getCPUTime();
+	//Converters::COOToJD(*Matrix, *JD);
+	Conv->COOToJD(*Matrix, *JD);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Convert in \n\njagged diagonal: \t\t%lf\n", endTime - startTime);
 	
+	if (JDBinary == false)
+	{
+		JD->WriteInBinaryFile(*JD);
+		JDBinary = true;
+	}
 
+	startTime = getCPUTime();
+	//Converters::COOToCD(*Matrix, *CD);
+	Conv->COOToCD(*Matrix, *CD);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
+	
+	if (CDBinary == false)
+	{
+		CD->WriteInBinaryFile(*CD);
+		CDBinary = true;
+	}
 
+	startTime = getCPUTime();
+	//Converters::COOToSL(*Matrix, *SL);
+	Conv->COOToSL(*Matrix, *SL);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Convert in \n\nSL: \t\t%lf\n", endTime - startTime);
 
+	if (SLBinary == false)
+	{
+		SL->WriteInBinaryFile(*SL);
+		SLBinary = true;
+	}
+
+		
 	delete[] result_crs;
 	delete[] result_ccs;
 	delete[] result_cd;
