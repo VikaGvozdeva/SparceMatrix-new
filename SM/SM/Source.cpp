@@ -1313,7 +1313,8 @@ double CheckCorrectness(double* my_mult, double* mkl_mult, int N)
 	return res;
 }
 
-int main(int argc, char** argv)
+//int main(int argc, char** argv)
+int main()
 {
 	FPTYPE startTime, endTime;
 	static bool COORead = false;
@@ -1347,7 +1348,8 @@ int main(int argc, char** argv)
 	SLMatrix *SL;
 
 	fileName = new char[256];
-	strcpy(fileName, argv[1]);
+	fileName = "C:/Users/Vika/Documents/GitHub/SparceMatrix-new/SM/SM/b1_ss.mtx";
+	//strcpy(fileName, argv[1]);
 	fprintf(fp, "Matrix file name: %s\n\n", fileName);
 
 	//	Matrix->ReadFromBinaryFile("COO.bin");
@@ -1416,7 +1418,7 @@ int main(int argc, char** argv)
 		CRS->ReadFromBinaryFile("CRS.bin");
 	}
 
-	if (JDBinary == false)
+	/*if (JDBinary == false)
 	{
 		startTime = getCPUTime();
 		Conv->COOToJD(*Matrix, *JD);
@@ -1428,7 +1430,7 @@ int main(int argc, char** argv)
 	else
 	{
 		JD->ReadFromBinaryFile("JD.bin");
-	}
+	}*/
 
 	if (CDBinary == false)
 	{
@@ -1471,11 +1473,11 @@ int main(int argc, char** argv)
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCRS: \t%lf\n", endTime - startTime);
 
 
-	startTime = getCPUTime();
+	/*startTime = getCPUTime();
 	JD->MatrixVectorMultJD(JD, v, Matrix->N, result_jd);
 	endTime = getCPUTime();
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nJD", endTime - startTime);
-
+*/
 	
 
 	startTime = getCPUTime();
@@ -1507,4 +1509,5 @@ int main(int argc, char** argv)
 	delete[] result_sl;
 	delete[] result_mkl;
 	return 0;
+	system("pause");
 }
