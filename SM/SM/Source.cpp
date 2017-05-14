@@ -1369,12 +1369,12 @@ int main()
 
 	CRS = new CRSMatrix(Matrix->NNZ, Matrix->N);
 	CCS = new CCSMatrix(Matrix->NNZ, Matrix->N);
-	//CDdiag = Matrix->DiagCDMatrix(*Matrix);
+	CDdiag = Matrix->DiagCDMatrix(*Matrix);
 	maxvalJD = Matrix->maxvalJDMatrix(*Matrix);
-	//CD = new CDMatrix(Matrix->NNZ, Matrix->N, CDdiag);
+	CD = new CDMatrix(Matrix->NNZ, Matrix->N, CDdiag);
 	JD = new JDMatrix(Matrix->NNZ, Matrix->N, maxvalJD);
-	//diagelemSL = Matrix->diagSLMatrix(*Matrix);
-	//SL = new SLMatrix(Matrix->NNZ, Matrix->N, diagelemSL);
+	diagelemSL = Matrix->diagSLMatrix(*Matrix);
+	SL = new SLMatrix(Matrix->NNZ, Matrix->N, diagelemSL);
 
 	v = new FPTYPE[Matrix->N];
 	for (int i = 0; i < Matrix->N; i++)
@@ -1433,33 +1433,33 @@ int main()
 		JD->ReadFromBinaryFile("JD.bin");
 	}*/
 
-	//if (CDBinary == false)
-	//{
-	//	startTime = getCPUTime();
-	//	Conv->COOToCD(*Matrix, *CD);
-	//	endTime = getCPUTime();
-	//	fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
-	//	CD->WriteInBinaryFile(*CD);
-	//	CDBinary = true;
-	//}
-	//else
-	//{
-	//	CD->ReadFromBinaryFile("CD.bin");
-	//}
+	/*if (CDBinary == false)
+	{
+		startTime = getCPUTime();
+		Conv->COOToCD(*Matrix, *CD);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
+		CD->WriteInBinaryFile(*CD);
+		CDBinary = true;
+	}
+	else
+	{
+		CD->ReadFromBinaryFile("CD.bin");
+	}*/
 
-	//if (SLBinary == false)
-	//{
-	//	startTime = getCPUTime();
-	//	Conv->COOToSL(*Matrix, *SL);
-	//	endTime = getCPUTime();
-	//	fprintf(fp, "Time Convert in \n\nSL: \t\t%lf\n", endTime - startTime);
-	//	SL->WriteInBinaryFile(*SL);
-	//	SLBinary = true;
-	//}
-	//if (SLBinary == false)
-	//{
-	//	SL->ReadFromBinaryFile("SL.bin");
-	//}
+	if (SLBinary == false)
+	{
+		startTime = getCPUTime();
+		Conv->COOToSL(*Matrix, *SL);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\nSL: \t\t%lf\n", endTime - startTime);
+		//SL->WriteInBinaryFile(*SL);
+		SLBinary = true;
+	}
+	if (SLBinary == false)
+	{
+		SL->ReadFromBinaryFile("SL.bin");
+	}
 
 
 	startTime = getCPUTime();
@@ -1481,11 +1481,11 @@ int main()
 //*/
 //	
 //
-//	startTime = getCPUTime();
-//	CD->MatrixVectorMultCD(CD, v, Matrix->N, result_cd);
-//	endTime = getCPUTime();
-//	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCD", endTime - startTime);
-//
+	/*startTime = getCPUTime();
+	CD->MatrixVectorMultCD(CD, v, Matrix->N, result_cd);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCD", endTime - startTime);
+*/
 	//for (int i = 0; i < Matrix->N + 1; i++)
 	//{
 	//	CRS->row_ptr[i]++;
