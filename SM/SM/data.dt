@@ -1,0 +1,21 @@
+Matrix file name: C:/Users/Vika/Documents/GitHub/SparceMatrix-new/SM/SM/Lin.mtx
+
+Time Read Matrix Info: 	1.812000
+
+Time Convert in 
+
+CRS: 		0.312000
+Time Convert in 
+
+CCS: 		0.000000
+
+Time Matrix-Vector multiplication in 
+
+CCS: 		0.016000
+Time Matrix-Vector multiplication in 
+
+CRS: 	0.000000
+
+Time Matrix-Vector multiplication in 
+
+MKL CRS: 		0.000000
