@@ -659,19 +659,22 @@ public:
 	}
 	void CDMatrix::FillDiagArray(COOMatrix Matrix)
 	{
-		int i, j, tmp_ind, m, diag_numb;
+		int i, j, tmp_ind, m=0, diag_numb;
 		bool flag;
 
+		INTTYPE *temp = new INTTYPE[2 * N - 1];
 		for (i = 0; i < 2 * N - 1; i++)
 		{
-			diag[i] = N + 1;
+			//diag[i] = N + 1;
+			temp[i] = N + 1;
 		}
 		for (i = 0; i < NNZ; i++)
 		{
 			tmp_ind = Matrix.col_ind[i] - Matrix.row_ind[i];
 			for (j = 0; j < 2 * N - 1; j++)
 			{
-				if ((tmp_ind) != diag[j])
+				//if ((tmp_ind) != diag[j])
+				if ((tmp_ind) != temp[j])
 				{
 					flag = true;
 				}
@@ -685,14 +688,20 @@ public:
 
 			if (flag == true)
 			{
-				diag[m++] = tmp_ind;
+				//diag[m++] = tmp_ind;
+				temp[m++] = tmp_ind;
 			}
 
 		}
 
 		diag_numb = m;
 
-		qsort(&diag[0], m, sizeof(INTTYPE), compare);
+		//qsort(&diag[0], m, sizeof(INTTYPE), compare);
+		qsort(&temp[0], m, sizeof(INTTYPE), compare);
+		for (int i = 0; i < m; i++)
+		{
+			diag[i] = temp[i];
+		}
 	}
 	void CDMatrix::WriteInBinaryFile(CDMatrix Matrix)
 	{
@@ -1049,6 +1058,10 @@ public:
 
 			vector< vector<FPTYPE> > val_;
 			val_.resize(diag_numb);
+
+			vector< vector<FPTYPE> > col_ind_;
+			col_ind_.resize(diag_numb);
+
 			for (int i = 0; i < diag_numb; i++)
 			{
 				val_[i].push_back(Matrix.diag[i]);
@@ -1060,30 +1073,26 @@ public:
 				for (j = 0; j < diag_numb; j++)
 				{
 					if (tmp_ind == val_[j][0])
+					{
 						val_[j].push_back(Mtx.val[i]);
+						//new
+						col_ind_[j].push_back(Mtx.col_ind[i]);
+					}
 				}
 			}
-			INTTYPE *diag_ptr = new INTTYPE[diag_numb + 1];
-			diag_ptr[0] = 0;
-			for (int j = 1; j < diag_numb + 1; j++)
-			{
-				diag_ptr[j] = val_[j - 1].size() - 1;
-			}
-			for (k = 2; k < diag_numb + 1; k++)
-			{
-				diag_ptr[k] += diag_ptr[k - 1];
-			}
+		
 			for (m = 0; m < diag_numb; m++) {
-				k = 0;
-				int p = 0;
-				for (n = diag_ptr[m]; n < diag_ptr[m + 1]; n++)
+				//for (n = diag_ptr[m]; n < diag_ptr[m + 1]; n++)
+				for (n = 1; n < val_[m].size(); n++)
 				{
-					Matrix.val[k][p] = val_[k][p + 1];
-					p++;
+					INTTYPE row_ind = col_ind_[m][n-1];
+					Matrix.val[row_ind][m] = val_[m][n];
+					//p++;
+					//k++;
 				}
 			}
 
-			delete[] diag_ptr;
+		//	delete[] diag_ptr;
 		}
 
 		static void COOToJD(const COOMatrix &Mtx, JDMatrix &Matrix)
@@ -1162,7 +1171,7 @@ public:
 			NNZ = Mtx.NNZ;
 			N = Mtx.N;
 			vector< vector<FPTYPE> > vec;
-			vec.resize(N);
+			vec.resize(N-1);
 
 			INTTYPE* elem_before_diag = new INTTYPE[N];
 			for (int i = 0; i < N; i++)
@@ -1184,8 +1193,8 @@ public:
 				else if ((Mtx.col_ind[i]) < (Mtx.row_ind[i]))
 				{
 					vec[Mtx.row_ind[i]].push_back(Mtx.val[i]);
-					elem_before_diag[Mtx.row_ind[i]+1]++;
-					//elem_before_diag[Mtx.row_ind[i]]++;
+					elem_before_diag[Mtx.row_ind[i]]++;
+					//elem_before_diag[Mtx.row_ind[i]+1]++;
 				}
 			}
 			int m = 0;
@@ -1194,7 +1203,8 @@ public:
 				//for (int j = 0; j < elem_before_diag[j]; j++)
 				for (int j = 0; j < elem_before_diag[i]; j++)
 				{
-					Matrix.altr[m++] = vec[i][j];
+					Matrix.altr[m] = vec[i][j];
+					m++;
 				}
 			}
 
@@ -1437,19 +1447,20 @@ int main()
 		JD->ReadFromBinaryFile("JD.bin");
 	}
 
-	//if (CDBinary == false)
-	//{
-	//	startTime = getCPUTime();
-	//	Conv->COOToCD(*Matrix, *CD);
-	//	endTime = getCPUTime();
-	//	fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
-	//	//CD->WriteInBinaryFile(*CD);
-	//	//CDBinary = true;
-	//}
-	//else
-	//{
-	//	CD->ReadFromBinaryFile("CD.bin");
-	//}
+	if (CDBinary == false)
+	{
+		startTime = getCPUTime();
+		CD->FillDiagArray(*Matrix);
+		Conv->COOToCD(*Matrix, *CD);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
+		//CD->WriteInBinaryFile(*CD);
+		//CDBinary = true;
+	}
+	else
+	{
+		CD->ReadFromBinaryFile("CD.bin");
+	}
 
 	//if (SLBinary == false)
 	//{
@@ -1478,10 +1489,10 @@ int main()
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCRS: \t%lf\n", endTime - startTime);
 
 
-	//startTime = getCPUTime();
-	//SL->MatrixVectorMultSL(SL, v, Matrix->N, result_sl);
-	//endTime = getCPUTime();
-	//fprintf(fp, "Time Matrix-Vector multiplication in \n\nSL: \t%lf\n", endTime - startTime);
+	startTime = getCPUTime();
+	SL->MatrixVectorMultSL(SL, v, Matrix->N, result_sl);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Matrix-Vector multiplication in \n\nSL: \t%lf\n", endTime - startTime);
 
 
 	startTime = getCPUTime();
