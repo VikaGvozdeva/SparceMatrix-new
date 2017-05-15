@@ -162,7 +162,7 @@ public:
 	INTTYPE diag_cd;
 	INTTYPE maxval_jd;
 
-	COOMatrix::COOMatrix(INTTYPE  _NNZ, INTTYPE _N)
+	COOMatrix(INTTYPE  _NNZ, INTTYPE _N)
 	{
 		int i;
 		N = _N;
@@ -174,7 +174,7 @@ public:
 		for (i = 0; i < N; i++)
 			NNZ_row[i] = 0;
 	}
-	COOMatrix::~COOMatrix()
+	~COOMatrix()
 	{
 		delete[] col_ind;
 		delete[] row_ind;
@@ -182,7 +182,7 @@ public:
 		delete[] NNZ_row;
 
 	}
-	COOMatrix::COOMatrix(const COOMatrix &Matrix)
+	COOMatrix(const COOMatrix &Matrix)
 	{
 		N = Matrix.N;
 		NNZ = Matrix.NNZ;
@@ -202,7 +202,7 @@ public:
 			val[j] = Matrix.val[j];
 		}
 	}
-	void COOMatrix::PrintMatrix(int NNZ)
+	void PrintMatrix(int NNZ)
 	{
 		int i;
 		for (i = 0; i < NNZ; i++)
@@ -212,7 +212,7 @@ public:
 		printf("\n");
 	}
 
-	COOMatrix *COOMatrix::ReadFromBinaryFile(char *filename)
+	COOMatrix *ReadFromBinaryFile(char *filename)
 	{
 		FILE *COOmtx = NULL;
 		int N, NNZ;
@@ -231,7 +231,7 @@ public:
 		return Matrix;
 	}
 
-	void COOMatrix::WriteInBinaryFile(COOMatrix Matrix)
+	void WriteInBinaryFile(COOMatrix Matrix)
 	{
 		FILE *COOmtx = NULL;
 		COOmtx = fopen("COOmtx.bin", "wb");
@@ -247,7 +247,7 @@ public:
 		fclose(COOmtx);
 	}
 
-	INTTYPE COOMatrix::DiagCDMatrix(COOMatrix Matrix)
+	INTTYPE DiagCDMatrix(COOMatrix Matrix)
 	{
 		int i, tmp_ind, m = 0, j;
 		bool flag;
@@ -290,7 +290,7 @@ public:
 		return diag_cd;
 	}
 
-	INTTYPE COOMatrix::maxvalJDMatrix(COOMatrix Matrix)
+	INTTYPE maxvalJDMatrix(COOMatrix Matrix)
 	{
 		INTTYPE maxval;
 		maxval = Matrix.NNZ_row[0];
@@ -304,7 +304,7 @@ public:
 		maxval_jd = maxval;
 		return maxval;
 	}
-	INTTYPE COOMatrix::diagSLMatrix(COOMatrix Matrix)
+	INTTYPE diagSLMatrix(COOMatrix Matrix)
 	{
 		int diagelem = 0;
 		for (int i = 0; i < NNZ; i++)
@@ -329,7 +329,7 @@ public:
 	INTTYPE *row_ptr;
 
 
-	CRSMatrix::CRSMatrix(INTTYPE _NNZ, INTTYPE _N)
+	CRSMatrix(INTTYPE _NNZ, INTTYPE _N)
 	{
 		N = _N;
 		NNZ = _NNZ;
@@ -342,7 +342,7 @@ public:
 		}
 	}
 
-	CRSMatrix::CRSMatrix(const CRSMatrix& Matrix)
+	CRSMatrix(const CRSMatrix& Matrix)
 	{
 		N = Matrix.N;
 		NNZ = Matrix.NNZ;
@@ -362,14 +362,14 @@ public:
 
 	}
 
-	CRSMatrix:: ~CRSMatrix() {
+	~CRSMatrix() {
 		delete[] col_ind;
 		delete[] row_ptr;
 		delete[] val;
 
 	}
 
-	CRSMatrix *CRSMatrix::ReadFromBinaryFile(char *filename)
+	CRSMatrix *ReadFromBinaryFile(char *filename)
 	{
 		FILE *CRSmtx = NULL;
 		int N, NNZ;
@@ -388,7 +388,7 @@ public:
 		return Matrix;
 	}
 
-	void CRSMatrix::WriteInBinaryFile(CRSMatrix Matrix)
+	void WriteInBinaryFile(CRSMatrix Matrix)
 	{
 		FILE *CRSmtx = NULL;
 		CRSmtx = fopen("CRSmtx.bin", "wb");
@@ -403,7 +403,7 @@ public:
 		fwrite(Matrix.row_ptr, sizeof(INTTYPE), Matrix.N+1, CRSmtx);
 		fclose(CRSmtx);
 	}
-	CRSMatrix& CRSMatrix::operator=(const CRSMatrix &Matrix) 
+	CRSMatrix& operator=(const CRSMatrix &Matrix) 
 	{
 		int i;
 		if (this != &Matrix) {
@@ -427,7 +427,7 @@ public:
 		}
 		return *this;
 	}
-	FPTYPE* CRSMatrix::MatrixVectorMultCRS(CRSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	FPTYPE* MatrixVectorMultCRS(CRSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		int i, j;
 		double tmp;
@@ -462,7 +462,7 @@ public:
 	INTTYPE *col_ptr;
 
 
-	CCSMatrix::CCSMatrix(INTTYPE _NNZ, INTTYPE _N)
+	CCSMatrix(INTTYPE _NNZ, INTTYPE _N)
 	{
 		N = _N;
 		NNZ = _NNZ;
@@ -476,7 +476,7 @@ public:
 	}
 
 
-	CCSMatrix::CCSMatrix(const CCSMatrix& Matrix)
+	CCSMatrix(const CCSMatrix& Matrix)
 	{
 		N = Matrix.N;
 		NNZ = Matrix.NNZ;
@@ -496,14 +496,14 @@ public:
 
 	}
 
-	CCSMatrix:: ~CCSMatrix() {
+	   ~CCSMatrix() {
 		delete[] row_ind;
 		delete[] col_ptr;
 		delete[] val;
 
 	}
 
-	CCSMatrix *CCSMatrix::ReadFromBinaryFile(char *filename)
+	CCSMatrix *ReadFromBinaryFile(char *filename)
 	{
 		FILE *CCSmtx = NULL;
 		int N, NNZ;
@@ -522,7 +522,7 @@ public:
 		return Matrix;
 	}
 
-	void CCSMatrix::WriteInBinaryFile(CCSMatrix Matrix)
+	void WriteInBinaryFile(CCSMatrix Matrix)
 	{
 		FILE *CCSmtx = NULL;
 		CCSmtx = fopen("CCSmtx.bin", "wb");
@@ -537,7 +537,7 @@ public:
 		fwrite(Matrix.col_ptr, sizeof(INTTYPE), Matrix.N + 1, CCSmtx);
 		fclose(CCSmtx);
 	}
-	CCSMatrix& CCSMatrix::operator=(const CCSMatrix &Matrix) 
+	CCSMatrix& operator=(const CCSMatrix &Matrix) 
 	{
 		int i;
 		if (this != &Matrix) {
@@ -561,7 +561,7 @@ public:
 		}
 		return *this;
 	}
-	FPTYPE* CCSMatrix::MatrixVectorMultCCS(CCSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	FPTYPE* MatrixVectorMultCCS(CCSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		int i, j, k;
 		for (k = 0; k < N; k++)
@@ -593,7 +593,7 @@ public:
 	INTTYPE* diag;
 	FPTYPE** val;
 
-	CDMatrix::CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B)
+	CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B)
 	{
 		int i;
 		int j;
@@ -612,7 +612,7 @@ public:
 		}
 
 	}
-	void CDMatrix::Print()
+	void Print()
 	{
 		int i, j;
 		printf("val:");
@@ -628,14 +628,14 @@ public:
 
 		printf("\n");
 	}
-	CDMatrix::~CDMatrix()
+	~CDMatrix()
 	{
 		delete[] diag;
 		for (int i = 0; i < N; i++)
 			delete[] val[i];
 		delete[] val;
 	}
-	CDMatrix::CDMatrix(const CDMatrix &Matrix)
+	CDMatrix(const CDMatrix &Matrix)
 	{
 		int i;
 		N = Matrix.N;
@@ -657,7 +657,7 @@ public:
 				val[i][j] = Matrix.val[i][j];
 			}
 	}
-	CDMatrix *CDMatrix::ReadFromBinaryFile(char *filename)
+	CDMatrix *ReadFromBinaryFile(char *filename)
 	{
 		FILE *CDmtx = NULL;
 		int N, NNZ;
@@ -675,7 +675,7 @@ public:
 		fclose(CDmtx);
 		return Matrix;
 	}
-	void CDMatrix::FillDiagArray(COOMatrix Matrix)
+	void FillDiagArray(COOMatrix Matrix)
 	{
 		int i, j, tmp_ind, m=0, diag_numb;
 		bool flag;
@@ -721,7 +721,7 @@ public:
 			diag[i] = temp[i];
 		}
 	}
-	void CDMatrix::WriteInBinaryFile(CDMatrix Matrix)
+	void WriteInBinaryFile(CDMatrix Matrix)
 	{
 		FILE *CDmtx = NULL;
 		CDmtx = fopen("CDmtx.bin", "wb");
@@ -736,7 +736,7 @@ public:
 		fwrite(Matrix.val, sizeof(INTTYPE), Matrix.B * Matrix.N, CDmtx);
 		fclose(CDmtx);
 	}
-	FPTYPE* CDMatrix::MatrixVectorMultCD(CDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	FPTYPE* MatrixVectorMultCD(CDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		int i, j;
 		int tmp;
@@ -778,7 +778,7 @@ public:
 	INTTYPE *jd_ptr;
 	INTTYPE MaxNNZ;
 
-	JDMatrix::JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
+	JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
 	{
 		int i;
 		N = _N;
@@ -798,7 +798,7 @@ public:
 			jdiag[i] = 0;
 		}
 	}
-	JDMatrix::~JDMatrix()
+	~JDMatrix()
 	{
 		delete[] perm;
 		delete[] jdiag;
@@ -806,11 +806,11 @@ public:
 		delete[] jd_ptr;
 
 	}
-	JDMatrix::JDMatrix(const JDMatrix &Matrix)
+	JDMatrix(const JDMatrix &Matrix)
 	{
 		//
 	}
-	JDMatrix *JDMatrix::ReadFromBinaryFile(char *filename)
+	JDMatrix *ReadFromBinaryFile(char *filename)
 	{
 		FILE *JDmtx = NULL;
 		int N, NNZ;
@@ -831,7 +831,7 @@ public:
 		return Matrix;
 	
 	}
-	void JDMatrix::WriteInBinaryFile(JDMatrix Matrix)
+	void WriteInBinaryFile(JDMatrix Matrix)
 	{
 
 		FILE *JDmtx = NULL;
@@ -849,7 +849,7 @@ public:
 		fwrite(Matrix.perm, sizeof(INTTYPE), Matrix.N, JDmtx);
 		fclose(JDmtx);
 	}
-	FPTYPE* JDMatrix::MatrixVectorMultJD(JDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	FPTYPE* MatrixVectorMultJD(JDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		int i = 0, j = 0, k = 0, NNZ = 0, tmp_ind = 0, maxval = 0, upper = 0;
 		NNZ = Matrix->NNZ;
@@ -901,7 +901,7 @@ public:
 	INTTYPE *jptr;
 	INTTYPE *iptr;
 
-	SLMatrix::SLMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _diag)
+	SLMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _diag)
 	{
 		int i;
 		N = _N;
@@ -927,7 +927,7 @@ public:
 			iptr[i] = 0;
 		}
 	}
-	SLMatrix::~SLMatrix()
+	~SLMatrix()
 	{
 		delete[] autr;
 		delete[] altr;
@@ -935,11 +935,11 @@ public:
 		delete[] jptr;
 		delete[] adiag;
 	}
-	SLMatrix::SLMatrix(const COOMatrix &Matrix)
+	SLMatrix(const COOMatrix &Matrix)
 	{
 		//
 	}
-	SLMatrix *SLMatrix::ReadFromBinaryFile(char *filename)
+	SLMatrix *ReadFromBinaryFile(char *filename)
 	{
 
 		FILE *SLmtx = NULL;
@@ -962,7 +962,7 @@ public:
 		return Matrix;
 	
 	}
-	void SLMatrix::WriteInBinaryFile(SLMatrix Matrix)
+	void WriteInBinaryFile(SLMatrix Matrix)
 	{
 		FILE *SLmtx = NULL;
 		SLmtx = fopen("SLmtx.bin", "wb");
@@ -980,7 +980,7 @@ public:
 		fwrite(Matrix.iptr, sizeof(INTTYPE), Matrix.N + 1, SLmtx);
 		fclose(SLmtx);
 	}
-	FPTYPE* SLMatrix::MatrixVectorMultSL(SLMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	FPTYPE* MatrixVectorMultSL(SLMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
 	{
 		int i, j;
 		for (i = 0; i < N; i++)
@@ -1185,9 +1185,9 @@ public:
 
 		static void COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix)
 		{
-			int i = 0, j = 0, k = 0, l = 0, NNZ = 0, N = 0, tmp_ind = 0, m = 0, p = 0;
-			NNZ = Mtx.NNZ;
-			N = Mtx.N;
+			int j = 0, k = 0, l = 0, tmp_ind = 0, m = 0, p = 0;
+			int NNZ = Mtx.NNZ;
+			int N = Mtx.N;
 			vector< vector<FPTYPE> > vec;
 			vec.resize(N-1);
 
@@ -1196,25 +1196,32 @@ public:
 			{
 				elem_before_diag[i] = 0;
 			}
+			int g = 0, h = 0, o = 0;
 
-			for (i = 0; i < NNZ; i++)
+			for (int i = 0; i < NNZ; i++)
 			{
-				if (Mtx.col_ind[i] == Mtx.row_ind[i])
-				{
-					Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
-				}
-				if (Mtx.col_ind[i] > Mtx.row_ind[i])
-				{
-					Matrix.autr[j++] = Mtx.val[i];
-					Matrix.jptr[l++] = Mtx.row_ind[i];
-				}
-
-				if ((Mtx.col_ind[i]) < (Mtx.row_ind[i]))
+				if (Mtx.col_ind[i] < Mtx.row_ind[i])
 				{
 					vec[Mtx.row_ind[i] - 1].push_back(Mtx.val[i]);
-					elem_before_diag[Mtx.row_ind[i]-1]++;
+					elem_before_diag[Mtx.row_ind[i] - 1]++;
+					o++;
+				}
+				else if (Mtx.row_ind[i] < Mtx.col_ind[i] )
+				{
+
+					Matrix.autr[j++] = Mtx.val[i];
+					Matrix.jptr[l++] = Mtx.row_ind[i];
+					h++;
+				}
+				//if (Mtx.col_ind[i] > Mtx.row_ind[i])
+				else
+				{
+					Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
+					g++;
 				}
 			}
+			printf("%d, %d, %d", g, h, o);
+			system("pause");
 			for (int i = 0; i < N-1; i++)
 			{
 				if (vec[i].size()!= 0)
@@ -1382,7 +1389,7 @@ int main()
 	SLMatrix *SL;
 
 	fileName = new char[256];
-	fileName = "C:/Users/Vika/Documents/GitHub/SparceMatrix-new/SM/SM/Lin.mtx";
+	fileName = "C:/Users/Vika/Documents/GitHub/SparceMatrix-new/SM/SM/2_G2_circuit.mtx";
 	//strcpy(fileName, argv[1]);
 	fprintf(fp, "Matrix file name: %s\n\n", fileName);
 
@@ -1402,9 +1409,9 @@ int main()
 
 	CRS = new CRSMatrix(Matrix->NNZ, Matrix->N);
 	CCS = new CCSMatrix(Matrix->NNZ, Matrix->N);
-	CDdiag = Matrix->DiagCDMatrix(*Matrix);
+	//CDdiag = Matrix->DiagCDMatrix(*Matrix);
 	maxvalJD = Matrix->maxvalJDMatrix(*Matrix);
-	CD = new CDMatrix(Matrix->NNZ, Matrix->N, CDdiag);
+	//CD = new CDMatrix(Matrix->NNZ, Matrix->N, CDdiag);
 	JD = new JDMatrix(Matrix->NNZ, Matrix->N, maxvalJD);
 	diagelemSL = Matrix->diagSLMatrix(*Matrix);
 	SL = new SLMatrix(Matrix->NNZ, Matrix->N, diagelemSL);
@@ -1424,78 +1431,76 @@ int main()
 
 	Converters *Conv = new Converters();
 
-	if (CRSBinary == false)
-	{
+	//if (CRSBinary == false)
+	//{
 		startTime = getCPUTime();
 		Conv->COOToCRS(*Matrix, *CRS);
 		endTime = getCPUTime();
 		fprintf(fp, "Time Convert in \n\nCRS: \t\t%lf\n", endTime - startTime);
-		CRS->WriteInBinaryFile(*CRS);
-		CRSBinary = true;
-	}
-	else
-	{
-		CRS->ReadFromBinaryFile("CRS.bin");
-	}
+	//	CRS->WriteInBinaryFile(*CRS);
+	//	CRSBinary = true;
+	//}
+	//else
+	//{
+	//	CRS->ReadFromBinaryFile("CRS.bin");
+	//}
 
-	if (CCSBinary == false)
-	{
+	/*if (CCSBinary == false)
+	{*/
 		startTime = getCPUTime();
 		Conv->COOToCCS(*Matrix, *CCS);
 		endTime = getCPUTime();
 		fprintf(fp, "Time Convert in \n\nCCS: \t\t%lf\n", endTime - startTime);
-		//CCS->WriteInBinaryFile(*CCS);
-		//CCSBinary = true;
-	}
-	else
-	{
-		CCS->ReadFromBinaryFile("CCS.bin");
-	}
+	//	//CCS->WriteInBinaryFile(*CCS);
+	//	//CCSBinary = true;
+	//}
+	//else
+	//{
+	//	CCS->ReadFromBinaryFile("CCS.bin");
+	//}
 
-	if (JDBinary == false)
-	{
+	//if (JDBinary == false)
+	//{
 		startTime = getCPUTime();
 		Conv->COOToJD(*Matrix, *JD);
 		endTime = getCPUTime();
 		fprintf(fp, "Time Convert in \n\njagged diagonal: \t\t%lf\n", endTime - startTime);
 		//JD->WriteInBinaryFile(*JD);
 		//JDBinary = true;
-	}
+	/*}
 	else
 	{
 		JD->ReadFromBinaryFile("JD.bin");
-	}
+	}*/
 
-	if (CDBinary == false)
-	{
+	//if (CDBinary == false)
+	//{
 		startTime = getCPUTime();
-		CD->FillDiagArray(*Matrix);	
-		Conv->COOToCD(*Matrix, *CD);
+	//	CD->FillDiagArray(*Matrix);	
+	//	Conv->COOToCD(*Matrix, *CD);
 		endTime = getCPUTime();
-		//CD->Print();
-		//system("pause");
 		fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
-		//CD->WriteInBinaryFile(*CD);
-		//CDBinary = true;
-	}
-	else
-	{
-		CD->ReadFromBinaryFile("CD.bin");
-	}
+	//	//CD->WriteInBinaryFile(*CD);
+	//	//CDBinary = true;
+	//}
+	//else
+	//{
+	//	CD->ReadFromBinaryFile("CD.bin");
+	//}
 
-	if (SLBinary == false)
-	{
+	//if (SLBinary == false)
+	//{
 		startTime = getCPUTime();
-		Conv->COOToSL(*Matrix, *SL);
+	//	Conv->COOToSL(*Matrix, *SL);
 		endTime = getCPUTime();
 		fprintf(fp, "Time Convert in \n\nSL: \t\t%lf\n", endTime - startTime);
-		//SL->WriteInBinaryFile(*SL);
-		//SLBinary = true;
-	}
-	else
-	{
-		SL->ReadFromBinaryFile("SL.bin");
-	}
+	//	//SL->WriteInBinaryFile(*SL);
+	//	//SLBinary = true;
+	//}
+	//else
+	//{
+	//	SL->ReadFromBinaryFile("SL.bin");
+	//}
 
 
 	startTime = getCPUTime();
@@ -1508,12 +1513,14 @@ int main()
 	CRS->MatrixVectorMultCRS(CRS, v, Matrix->N, result_crs);
 	endTime = getCPUTime();
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCRS: \t%lf\n", endTime - startTime);
+	//for (int i = 0; i<Matrix->N; i++)
+	//fprintf(fp, "result: \t%f\n",result_crs[i]);
 
 
-	//startTime = getCPUTime();
+	startTime = getCPUTime();
 	//SL->MatrixVectorMultSL(SL, v, Matrix->N, result_sl);
-	//endTime = getCPUTime();
-	//fprintf(fp, "Time Matrix-Vector multiplication in \n\nSL: \t%lf\n", endTime - startTime);
+	endTime = getCPUTime();
+	fprintf(fp, "Time Matrix-Vector multiplication in \n\nSL: \t%lf\n", endTime - startTime);
 
 
 	startTime = getCPUTime();
@@ -1524,36 +1531,38 @@ int main()
 	
 
 	startTime = getCPUTime();
-	CD->MatrixVectorMultCD(CD, v, Matrix->N, result_cd);
+	//CD->MatrixVectorMultCD(CD, v, Matrix->N, result_cd);
 	endTime = getCPUTime();
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCD: \t%lf\n", endTime - startTime);
 
-	//for (int i = 0; i < Matrix->N + 1; i++)
-	//{
-	//	CRS->row_ptr[i]++;
-	//}
-	//for (int i = 0; i < Matrix->NNZ; i++)
-	//{
-	//	CRS->col_ind[i]++;
-	//}
-
-	for (int i = 0; i < Matrix->NNZ; i++)
-
+	for (int i = 0; i < Matrix->N + 1; i++)
 	{
-		Matrix->row_ind[i]++;
-		Matrix->col_ind[i]++;
+		CRS->row_ptr[i]++;
 	}
+	for (int i = 0; i < Matrix->NNZ; i++)
+	{
+		CRS->col_ind[i]++;
+	}
+
+	//for (int i = 0; i < Matrix->NNZ; i++)
+
+	//{
+	//	Matrix->row_ind[i]++;
+	//	Matrix->col_ind[i]++;
+	//}
 	startTime = getCPUTime();
-//	mkl_dcsrgemv("N", &CRS->N, CRS->val, CRS->row_ptr, CRS->col_ind, v, result_mkl);
-	mkl_dcoogemv("N", &Matrix->N, Matrix->val, Matrix->row_ind, Matrix->col_ind, &Matrix->NNZ, v, result_mkl);
+	mkl_dcsrgemv("N", &CRS->N, CRS->val, CRS->row_ptr, CRS->col_ind, v, result_mkl);
+//	mkl_dcoogemv("N", &Matrix->N, Matrix->val, Matrix->row_ind, Matrix->col_ind, &Matrix->NNZ, v, result_mkl);
 	endTime = getCPUTime();
+	//for (int i =0; i<Matrix->N; i++)
+	//fprintf(fp, "result: \t%f\n", result_mkl[i]);
 
 	fprintf(fp, "\nTime Matrix-Vector multiplication in \n\nMKL CRS: \t\t%lf\n", endTime - startTime);
-	fprintf(fp, "\ndifference %.15f with JDIAG\n", CheckCorrectness(result_jd, result_mkl, Matrix->N));
-	fprintf(fp,"\ndifference %.15f with CCS\n", CheckCorrectness(result_ccs, result_mkl, Matrix->N));
-	fprintf(fp,"\ndifference %.15f with CRS\n", CheckCorrectness(result_crs, result_mkl, Matrix->N));
-	fprintf(fp, "\ndifference %.15f with SKYLINE\n", CheckCorrectness(result_sl, result_mkl, Matrix->N));
-	fprintf(fp, "\ndifference %.15f with COMPDIAG\n", CheckCorrectness(result_cd, result_mkl, Matrix->N));
+	//fprintf(fp, "\ndifference %.15f with JDIAG\n", CheckCorrectness(result_jd, result_mkl, Matrix->N));
+	//fprintf(fp,"\ndifference %.15f with CCS\n", CheckCorrectness(result_ccs, result_mkl, Matrix->N));
+	//fprintf(fp,"\ndifference %.15f with CRS\n", CheckCorrectness(result_crs, result_mkl, Matrix->N));
+	//fprintf(fp, "\ndifference %.15f with SKYLINE\n", CheckCorrectness(result_sl, result_mkl, Matrix->N));
+	//fprintf(fp, "\ndifference %.15f with COMPDIAG\n", CheckCorrectness(result_cd, result_mkl, Matrix->N));
 
 
 	delete[] result_crs;
@@ -1563,5 +1572,4 @@ int main()
 	delete[] result_sl;
 	delete[] result_mkl;
 	return 0;
-	system("pause");
 }
