@@ -279,8 +279,10 @@ public:
 
 			if (flag == true)
 			{
-				diag[m++] = tmp_ind;
+				diag[m] = tmp_ind;
+				m++;
 			}
+			
 
 		}
 
@@ -610,6 +612,22 @@ public:
 		}
 
 	}
+	void CDMatrix::Print()
+	{
+		int i, j;
+		printf("val:");
+		for (i = 0; i < N; i++)
+		{
+			printf("diag %d \n", i);
+			for (j = 0; j < B; j++)
+				printf("%lf , ", val[i][j]);
+		}
+		printf(" \n diag:");
+		for (i = 0; i < B; i++)
+			printf("%d , ", diag[i]);
+
+		printf("\n");
+	}
 	CDMatrix::~CDMatrix()
 	{
 		delete[] diag;
@@ -663,6 +681,7 @@ public:
 		bool flag;
 
 		INTTYPE *temp = new INTTYPE[2 * N - 1];
+		
 		for (i = 0; i < 2 * N - 1; i++)
 		{
 			//diag[i] = N + 1;
@@ -671,6 +690,7 @@ public:
 		for (i = 0; i < NNZ; i++)
 		{
 			tmp_ind = Matrix.col_ind[i] - Matrix.row_ind[i];
+
 			for (j = 0; j < 2 * N - 1; j++)
 			{
 				//if ((tmp_ind) != diag[j])
@@ -695,8 +715,6 @@ public:
 		}
 
 		diag_numb = m;
-
-		//qsort(&diag[0], m, sizeof(INTTYPE), compare);
 		qsort(&temp[0], m, sizeof(INTTYPE), compare);
 		for (int i = 0; i < m; i++)
 		{
@@ -1167,14 +1185,14 @@ public:
 
 		static void COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix)
 		{
-			int i = 0, j = 0, k = 0, l = 0, NNZ = 0, N = 0, tmp_ind = 0, ad = 0, p = 0;
+			int i = 0, j = 0, k = 0, l = 0, NNZ = 0, N = 0, tmp_ind = 0, m = 0, p = 0;
 			NNZ = Mtx.NNZ;
 			N = Mtx.N;
 			vector< vector<FPTYPE> > vec;
 			vec.resize(N-1);
 
-			INTTYPE* elem_before_diag = new INTTYPE[N];
-			for (int i = 0; i < N; i++)
+			INTTYPE* elem_before_diag = new INTTYPE[N-1];
+			for (int i = 0; i < N-1; i++)
 			{
 				elem_before_diag[i] = 0;
 			}
@@ -1185,26 +1203,27 @@ public:
 				{
 					Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
 				}
-				else if (Mtx.col_ind[i] > Mtx.row_ind[i])
+				if (Mtx.col_ind[i] > Mtx.row_ind[i])
 				{
 					Matrix.autr[j++] = Mtx.val[i];
 					Matrix.jptr[l++] = Mtx.row_ind[i];
 				}
-				else if ((Mtx.col_ind[i]) < (Mtx.row_ind[i]))
+
+				if ((Mtx.col_ind[i]) < (Mtx.row_ind[i]))
 				{
-					vec[Mtx.row_ind[i]].push_back(Mtx.val[i]);
-					elem_before_diag[Mtx.row_ind[i]]++;
-					//elem_before_diag[Mtx.row_ind[i]+1]++;
+					vec[Mtx.row_ind[i] - 1].push_back(Mtx.val[i]);
+					elem_before_diag[Mtx.row_ind[i]-1]++;
 				}
 			}
-			int m = 0;
-			//for (int i = 0; i < N; i++)
-			for (int i = 1; i < N; i++) {
-				//for (int j = 0; j < elem_before_diag[j]; j++)
-				for (int j = 0; j < elem_before_diag[i]; j++)
+			for (int i = 0; i < N-1; i++)
+			{
+				if (vec[i].size()!= 0)
 				{
-					Matrix.altr[m] = vec[i][j];
-					m++;
+					for (int j = 0; j < vec.size(); j++)
+					{
+						Matrix.altr[m] = vec[i][j];
+						m++;
+					}
 				}
 			}
 
@@ -1450,9 +1469,11 @@ int main()
 	if (CDBinary == false)
 	{
 		startTime = getCPUTime();
-		CD->FillDiagArray(*Matrix);
+		CD->FillDiagArray(*Matrix);	
 		Conv->COOToCD(*Matrix, *CD);
 		endTime = getCPUTime();
+		//CD->Print();
+		//system("pause");
 		fprintf(fp, "Time Convert in \n\ncompressed diagonal: \t\t%lf\n", endTime - startTime);
 		//CD->WriteInBinaryFile(*CD);
 		//CDBinary = true;
@@ -1462,19 +1483,19 @@ int main()
 		CD->ReadFromBinaryFile("CD.bin");
 	}
 
-	//if (SLBinary == false)
-	//{
-	//	startTime = getCPUTime();
-	//	Conv->COOToSL(*Matrix, *SL);
-	//	endTime = getCPUTime();
-	//	fprintf(fp, "Time Convert in \n\nSL: \t\t%lf\n", endTime - startTime);
-	//	//SL->WriteInBinaryFile(*SL);
-	//	//SLBinary = true;
-	//}
-	//else
-	//{
-	//	SL->ReadFromBinaryFile("SL.bin");
-	//}
+	if (SLBinary == false)
+	{
+		startTime = getCPUTime();
+		Conv->COOToSL(*Matrix, *SL);
+		endTime = getCPUTime();
+		fprintf(fp, "Time Convert in \n\nSL: \t\t%lf\n", endTime - startTime);
+		//SL->WriteInBinaryFile(*SL);
+		//SLBinary = true;
+	}
+	else
+	{
+		SL->ReadFromBinaryFile("SL.bin");
+	}
 
 
 	startTime = getCPUTime();
@@ -1489,17 +1510,17 @@ int main()
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nCRS: \t%lf\n", endTime - startTime);
 
 
-	startTime = getCPUTime();
-	SL->MatrixVectorMultSL(SL, v, Matrix->N, result_sl);
-	endTime = getCPUTime();
-	fprintf(fp, "Time Matrix-Vector multiplication in \n\nSL: \t%lf\n", endTime - startTime);
+	//startTime = getCPUTime();
+	//SL->MatrixVectorMultSL(SL, v, Matrix->N, result_sl);
+	//endTime = getCPUTime();
+	//fprintf(fp, "Time Matrix-Vector multiplication in \n\nSL: \t%lf\n", endTime - startTime);
 
 
 	startTime = getCPUTime();
 	JD->MatrixVectorMultJD(JD, v, Matrix->N, result_jd);
 	endTime = getCPUTime();
 	fprintf(fp, "Time Matrix-Vector multiplication in \n\nJD: \t%lf\n", endTime - startTime);
-
+	
 	
 
 	startTime = getCPUTime();
