@@ -9,12 +9,12 @@
 #include <vector>
 #include <string>
 #include <mkl.h>
-#include "CCS.h"
-#include "CRS.h"
-#include "COO.h"
-#include "JD.h"
-#include "CD.h"
-#include "Converter.h"
+#include "include\CCS.h"
+#include "include\CRS.h"
+#include "include\COO.h"
+#include "include\JD.h"
+#include "include\CD.h"
+#include "include\Converter.h"
 
 using namespace std;
 

@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "include\JD.h"
+#include "JD.h"
 JDMatrix::JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
 	{
 		int i;

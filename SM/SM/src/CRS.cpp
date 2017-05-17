@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "include\CRS.h"
+#include "CRS.h"
 
 CRSMatrix::CRSMatrix(INTTYPE _NNZ, INTTYPE _N)
 	{

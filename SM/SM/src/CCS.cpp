@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "include\CCS.h"
+#include "CCS.h"
 
 CCSMatrix::CCSMatrix(INTTYPE _NNZ, INTTYPE _N)
 	{

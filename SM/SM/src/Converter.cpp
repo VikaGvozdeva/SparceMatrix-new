@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "include\Converter.h"
+#include "Converter.h"
 void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 {
 	int i = first, j = last, x = s_arr[(first + last) / 2], tmp = 0;

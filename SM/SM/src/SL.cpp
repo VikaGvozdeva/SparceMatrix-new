@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "include\SL.h"
+#include "SL.h"
 
 SLMatrix::SLMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _diag)
 	{
