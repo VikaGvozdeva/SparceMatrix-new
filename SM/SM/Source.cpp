@@ -9,27 +9,20 @@
 #include <vector>
 #include <string>
 #include <mkl.h>
-<<<<<<< HEAD
-//#include "include\CCS.h"
-//#include "include\CRS.h"
-//#include "include\COO.h"
-//#include "include\JD.h"
-//#include "include\CD.h"
-//#include "include\Converter.h"
+
 #include "CCS.h"
 #include "CRS.h"
 #include "COO.h"
 #include "JD.h"
 #include "CD.h"
 #include "Converter.h"
-=======
-#include "include\CCS.h"
-#include "include\CRS.h"
-#include "include\COO.h"
-#include "include\JD.h"
-#include "include\CD.h"
-#include "include\Converter.h"
->>>>>>> b4d028e89b267fe6a2993e1470701ef9f3a9362f
+// #include "include\CCS.h"
+// #include "include\CRS.h"
+// #include "include\COO.h"
+// #include "include\JD.h"
+// #include "include\CD.h"
+// #include "include\Converter.h"
+
 
 using namespace std;
 
