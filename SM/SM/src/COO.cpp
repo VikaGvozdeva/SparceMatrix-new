@@ -54,8 +54,7 @@ COOMatrix::~COOMatrix()
 		printf("\n");
 	}
 
-
-	COOMatrix *COOMatrix::ReadFromBinaryFile(char *filename)
+	COOMatrix *ReadFromBinaryFile(char *filename)
 	{
 		FILE *COOmtx = NULL;
 		int N, NNZ;

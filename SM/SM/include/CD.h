@@ -29,7 +29,7 @@ typedef float FPTYPE;
 
 #define MAX_LINE_LEN 1000000
 
-//int compare(const void * x1, const void * x2)
+// int compare(const void * x1, const void * x2)
 // {
 // 	return (*(int*)x1 - *(int*)x2);
 // }
@@ -47,7 +47,6 @@ public:
 	void Print();
 	~CDMatrix();
 	CDMatrix(const CDMatrix &Matrix);
-	//int compare(const void * x1, const void * x2);
 	CDMatrix *ReadFromBinaryFile(char *filename);
 	void FillDiagArray(COOMatrix Matrix);
 	void WriteInBinaryFile(const CDMatrix &Matrix, char *filename);	
