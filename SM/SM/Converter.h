@@ -8,12 +8,12 @@
 #include <string.h>
 #include <iostream>
 #include <inttypes.h>
-#include "COO.h"
-#include "CCS.h"
-#include "CRS.h"
-#include "JD.h"
-#include "SL.h"
-#include "CD.h"
+#include "include\COO.h"
+#include "include\CCS.h"
+#include "include\CRS.h"
+#include "include\JD.h"
+#include "include\SL.h"
+#include "include\CD.h"
 
 using namespace std;
 

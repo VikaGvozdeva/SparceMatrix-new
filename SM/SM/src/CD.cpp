@@ -20,6 +20,7 @@ CDMatrix::CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B)
 		}
 
 	}
+
 int CDMatrix::compare(const void * x1, const void * x2)
 {
 	return (*(int*)x1 - *(int*)x2);
