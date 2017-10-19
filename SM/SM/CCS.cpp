@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "include\CCS.h"
+#include "CCS.h"
 
 CCSMatrix::CCSMatrix(INTTYPE _NNZ, INTTYPE _N)
 	{
@@ -47,7 +47,7 @@ CCSMatrix::~CCSMatrix() {
 	{
 		FILE *CCSmtx = NULL;
 		int N, NNZ;
-		CCSmtx = fopen("CCSmtx.bin", "rb");
+		CCSmtx = fopen(filename, "rb");
 		if (CCSmtx == NULL)
 		{
 			printf("Error opening file");
