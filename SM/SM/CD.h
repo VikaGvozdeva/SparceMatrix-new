@@ -29,10 +29,10 @@ typedef float FPTYPE;
 
 #define MAX_LINE_LEN 1000000
 
-//int compare(const void * x1, const void * x2)
-// {
-// 	return (*(int*)x1 - *(int*)x2);
-// }
+/*int compare(const void * x1, const void * x2)
+ {
+ 	return (*(int*)x1 - *(int*)x2);
+ }*/
 class CDMatrix
 {
 public:
