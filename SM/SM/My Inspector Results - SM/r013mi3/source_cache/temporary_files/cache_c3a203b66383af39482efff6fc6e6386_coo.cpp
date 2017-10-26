@@ -1,7 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+//#include "include\COO.h"
 #include "COO.h"
 
+//#include "COO.h"
 
 COOMatrix::COOMatrix(INTTYPE  _NNZ, INTTYPE _N)
 	{
@@ -21,7 +23,7 @@ COOMatrix::COOMatrix(INTTYPE  _NNZ, INTTYPE _N)
 COOMatrix& COOMatrix::operator=(const COOMatrix &Matrix)
 {
 	int i;
-	if (this != &Matrix) {
+	//if (this != &Matrix) {
 		delete[] val;
 		delete[] row_ind;
 		delete[] col_ind;
@@ -38,8 +40,10 @@ COOMatrix& COOMatrix::operator=(const COOMatrix &Matrix)
 			val[i] = Matrix.val[i];
 			col_ind[i] = Matrix.col_ind[i];
 		}
+		/*for (i = 0; i < N + 1; i++)
+			col_ptr[i] = Matrix.col_ptr[i];*/
 
-	}
+	//}
 	return *this;
 }
 COOMatrix::~COOMatrix()
@@ -52,12 +56,6 @@ COOMatrix::~COOMatrix()
 	}
 	COOMatrix::COOMatrix(const COOMatrix &Matrix)
 	{
-		if (this != &Matrix) {
-		delete[] col_ind;
-		delete[] row_ind;
-		delete[] val;
-		delete[] NNZ_row;
-
 		N = Matrix.N;
 		NNZ = Matrix.NNZ;
 		val = new FPTYPE[NNZ];
@@ -75,7 +73,6 @@ COOMatrix::~COOMatrix()
 			row_ind[j] = Matrix.row_ind[j];
 			val[j] = Matrix.val[j];
 		}
-	}
 	}
 	void COOMatrix::PrintMatrix(int NNZ)
 	{
@@ -125,6 +122,32 @@ COOMatrix::~COOMatrix()
 		fclose(COOmtx);
 	}
 
+	/*COOMatrix & COOMatrix::operator=(const COOMatrix & Matrix)
+	{
+		{
+			int i;
+			if (this != &Matrix) {
+				delete[] val;
+				delete[] row_ind;
+				delete[] col_ind;
+				N = Matrix.N;
+				NNZ = Matrix.NNZ;
+
+				val = new FPTYPE[NNZ];
+				row_ind = new INTTYPE[NNZ];
+				col_ind = new INTTYPE[NNZ];
+				for (i = 0; i < NNZ; i++)
+				{
+					row_ind[i] = Matrix.row_ind[i];
+					val[i] = Matrix.val[i];
+					col_ind[i] = Matrix.col_ind[i];
+				}
+
+			}
+			return *this;
+		}
+	}
+*/
 	INTTYPE COOMatrix::DiagCDMatrix(const COOMatrix& Matrix)
 	{
 		int i, tmp_ind, m = 0, j;

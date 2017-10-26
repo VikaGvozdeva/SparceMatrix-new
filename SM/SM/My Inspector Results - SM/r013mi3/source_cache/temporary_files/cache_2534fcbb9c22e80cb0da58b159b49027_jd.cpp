@@ -6,8 +6,9 @@ JDMatrix::JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
 		N = _N;
 		NNZ = _NNZ;
 		MaxNNZ = _MaxNNZ;
-		if ((NNZ != 0) && (N != 0) && (MaxNNZ != 0))
-		{
+		//numbdiag = _MaxNNZ;
+		//if ((NNZ != 0) && (N != 0) && (numbdiag != 0))
+		//{
 			jdiag = new FPTYPE[NNZ];
 			perm = new INTTYPE[N];
 			col_ind = new INTTYPE[NNZ];
@@ -25,7 +26,7 @@ JDMatrix::JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
 				jdiag[i] = 0;
 				col_ind[i] = 0;
 			}
-		}
+		//}
 	}
 JDMatrix::~JDMatrix()
 	{
@@ -46,7 +47,7 @@ if (this != &Matrix) {
 		N = Matrix.N;
 		NNZ = Matrix.NNZ;
 		MaxNNZ = Matrix.MaxNNZ;
-
+		//numbdiag = Matrix.MaxNNZ;
 
 		jdiag = new FPTYPE[NNZ];
 		perm = new INTTYPE[N];

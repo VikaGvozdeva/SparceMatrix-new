@@ -165,7 +165,8 @@ int main(int argc, char** argv)
 	char *typeMatrix;
 	INTTYPE CDdiag;
 	INTTYPE maxvalJD;
-	
+	INTTYPE row;
+
 	FPTYPE* result_crs;
 	FPTYPE* result_ccs;
 	FPTYPE* result_cd;
@@ -178,24 +179,34 @@ int main(int argc, char** argv)
 	CCSMatrix* CCS = new CCSMatrix(0,0);
 	CDMatrix* CD = new CDMatrix(0,0,0);
 	JDMatrix* JD = new JDMatrix(0,0,0);
-
+	//SLMatrix *SL;
 
 	fileName = new char[20];
 	fileInput = new char[30];
 	typeMatrix = new char[5];
-	act = new char[3];
 
+	act = new char[3];
 	strcpy(fileName, argv[1]);
 	char* name = new char[strlen(fileName) - 4];
-	strncpy(name, fileName, strlen(fileName) - 4);
-	/*cout << "length" << strlen(fileName) << endl;
-	cout << "name is " << name << endl;*/
+	//strncpy(name, fileName, strchr(fileName, '.')- fileName);
 	strcpy(act, argv[2]);
 	strcpy(typeMatrix, argv[3]);
+	//strncpy(name, fileName, strchr(fileName, '.') - fileName);
+	cout << "file" << name << endl;
+	//strncpy(name,"nos3");
+	sprintf(name, "b1_ss");
+	sprintf(fileInput, "COO_b1_ss.bin");
+	//проблема с разбивкой имени файла на имя матрицы с последующими подстановками
 
 
 	if (strcmp("COO", typeMatrix)==0)
 	{
+		/*char* res_file = "COO_res_";
+		strcat(res_file, name);
+		strcat(res_file, ".dt");
+		
+		FILE *fp = fopen(res_file, "w");*/
+		//как создавать новые файлы рез_имя матрицы_тип? проблема со строками
 		startTime = getCPUTime();
 		Matrix = Matrix->ReadMatrix(fileName);
 
@@ -211,6 +222,7 @@ int main(int argc, char** argv)
 		if (strcmp("r", act) == 0)
 		{
 			Matrix->ReadFromBinaryFile(fileInput);
+			Matrix->PrintMatrix(Matrix->NNZ);
 		}
 	}
 
@@ -233,11 +245,13 @@ int main(int argc, char** argv)
 			fprintf(fp, "Time Convert in \n\nCRS: \t\t%.15f\n", endTime - startTime);
 			sprintf(fileInput, "CRS_%s.bin", name);
 			CRS->WriteInBinaryFile(*CRS, fileInput);
+			//CRS->PrintMatrix(CRS->NNZ, CRS->N);
 		}
 		if (strcmp("r", act) == 0)
 		{
 			sprintf(fileInput, "CRS_%s.bin", name);
 			CRS = CRS->ReadFromBinaryFile(fileInput);
+			//CRS->PrintMatrix(CRS->NNZ, CRS->N);
 		}
 
 		result_crs = new FPTYPE[Matrix->N];
@@ -256,17 +270,15 @@ int main(int argc, char** argv)
 		{
 			CRS->col_ind[i]++;
 		}
-
+		for (int i = 0; i < Matrix->N; i++)
+		{
+			cout << result_crs[i] << endl;
+		}
 		startTime = getCPUTime();
 		mkl_dcsrgemv("N", &(CRS->N), CRS->val, CRS->row_ptr, CRS->col_ind, v, result_mkl);
 		endTime = getCPUTime();
 		fprintf(fp, "\n Time Matrix-Vector multiplication in \n\nMKL CRS: \t\t%lf\n", endTime - startTime);
 		fprintf(fp, "\ndifference %.15f with CRS\n", CheckCorrectness(result_crs, result_mkl, CRS->N));
-	
-		delete[] v;
-		delete[] result_mkl;
-		delete[] result_crs;
-
 	}
 
 	if (strcmp("CCS", typeMatrix) == 0)
@@ -288,6 +300,7 @@ int main(int argc, char** argv)
 			fprintf(fp, "Time Convert in \n\nCCS: \t\t%.15f\n", endTime - startTime);
 			sprintf(fileInput, "CCS_%s.bin", name);
 			CCS->WriteInBinaryFile(*CCS, fileInput);
+			//CRS->PrintMatrix(CRS->NNZ, CRS->N);
 		}
 		if (strcmp("r", act) == 0)
 		{
@@ -296,9 +309,8 @@ int main(int argc, char** argv)
 		}
 
 		result_ccs = new FPTYPE[Matrix->N];
-
-		sprintf(fileInput, "CRS_%s.bin", name);
-		CRS = CRS->ReadFromBinaryFile(fileInput);
+		//сделать чтение из црс_имя матрицы(проверка на открытие файлы)
+		CRS = CRS->ReadFromBinaryFile("CRS_b1_ss.bin");
 
 		for (int i = 0; i < Matrix->N + 1; i++)
 		{
@@ -308,26 +320,20 @@ int main(int argc, char** argv)
 		{
 			CRS->col_ind[i]++;
 		}
-
-		startTime = getCPUTime();
-		CCS->MatrixVectorMultCCS(CCS, v, Matrix->N, result_ccs);
-		endTime = getCPUTime();
-		fprintf(fp, "Time Matrix-Vector multiplication in \n\nCCS: \t%.15f\n", endTime - startTime);
-		
 		result_mkl = new FPTYPE[Matrix->N];
 		startTime = getCPUTime();
 		mkl_dcsrgemv("N", &(CRS->N), CRS->val, CRS->row_ptr, CRS->col_ind, v, result_mkl);
 		endTime = getCPUTime();
-		fprintf(fp, "Time Matrix-Vector multiplication in \n\nMKL: \t%.15f\n", endTime - startTime);
+
+		startTime = getCPUTime();
+		CCS->MatrixVectorMultCCS(CCS, v, Matrix->N, result_ccs);
+		endTime = getCPUTime();
 		fprintf(fp, "\ndifference %.15f with CСS\n", CheckCorrectness(result_ccs, result_mkl, CRS->N));
-		
-		delete[] v;
-		delete[] result_mkl;
-		delete[] result_ccs;
-		
+		fprintf(fp, "Time Matrix-Vector multiplication in \n\nCCS: \t%.15f\n", endTime - startTime);
 }	
 	if (strcmp("CD", typeMatrix) == 0)
 	{
+		//name = "nos3";
 		sprintf(fileInput, "COO_%s.bin", name);
 		Matrix = Matrix->ReadFromBinaryFile(fileInput);
 		FPTYPE* v = new FPTYPE[Matrix->N];
@@ -339,6 +345,7 @@ int main(int argc, char** argv)
 		if (strcmp("wr", act) == 0)
 		{
 			CDdiag = Matrix->DiagCDMatrix(*Matrix);
+			//row = Matrix->nonZeroRows(*Matrix);
 			*CD = CDMatrix(Matrix->NNZ, Matrix->N, CDdiag);
 			CD->FillDiagArray(*Matrix);
 			startTime = getCPUTime();
@@ -357,44 +364,37 @@ int main(int argc, char** argv)
 
 		result_cd = new FPTYPE[Matrix->N];
 		startTime = getCPUTime();
+		//CD->Print();
 		CD->MatrixVectorMultCD(CD, v, Matrix->N, result_cd);
 		endTime = getCPUTime();
 		fprintf(fp, "\nTime Matrix-Vector multiplication in \n\nCD: \t\t%lf\n", endTime - startTime);
-
-		sprintf(fileInput, "CRS_%s.bin", name);
-		CRS = CRS->ReadFromBinaryFile(fileInput);
-
-		for (int i = 0; i < Matrix->N + 1; i++)
-		{
-			CRS->row_ptr[i]++;
-		}
-		for (int i = 0; i < Matrix->NNZ; i++)
-		{
-			CRS->col_ind[i]++;
-		}
-
-		result_mkl = new FPTYPE[Matrix->N];
-		startTime = getCPUTime();
-		mkl_dcsrgemv("N", &(CRS->N), CRS->val, CRS->row_ptr, CRS->col_ind, v, result_mkl);
-		//mkl_ddiagemv("N", &(CD->N), *CD->val, &CD->N, CD->diag, &CD->B, v, result_mkl);
-		endTime = getCPUTime();
-	/*	for (int i = 0; i < Matrix->N; i++)
-		{
-			cout << "cd " << result_cd[i] << endl;
-		}
 		for (int i = 0; i < Matrix->N; i++)
 		{
-			cout << "mkl " << result_mkl[i] << endl;
-		}*/
-		fprintf(fp, "\nTime Matrix-Vector multiplication in \n\nMKL: \t\t%lf\n", endTime - startTime);
-		fprintf(fp, "\ndifference %.15f with CD\n", CheckCorrectness(result_cd, result_mkl, CD->N));
+			cout << result_cd[i] << endl;
+		}
+
+
+		//CRS = CRS->ReadFromBinaryFile("CRS_nos3.bin");
+
+		//for (int i = 0; i < Matrix->N + 1; i++)
+		//{
+		//	CRS->row_ptr[i]++;
+		//}
+		//for (int i = 0; i < Matrix->NNZ; i++)
+		//{
+		//	CRS->col_ind[i]++;
+		//}
+		//result_mkl = new FPTYPE[Matrix->N];
+		//startTime = getCPUTime();
+		//mkl_dcsrgemv("N", &(CRS->N), CRS->val, CRS->row_ptr, CRS->col_ind, v, result_mkl);
+		//endTime = getCPUTime();
+
+		//fprintf(fp, "\ndifference %.15f with CСS\n", CheckCorrectness(result_cd, result_mkl, CRS->N));
 		
-		delete[] v;
-		delete[] result_mkl;
-		delete[] result_cd;
 	}
 	if (strcmp("JD", typeMatrix) == 0)
 	{
+		cout << "name is -" << name << endl;
 		sprintf(fileInput, "COO_%s.bin", name);
 		Matrix = Matrix->ReadFromBinaryFile(fileInput);
 		maxvalJD = Matrix->maxvalJDMatrix(*Matrix);
@@ -407,29 +407,38 @@ int main(int argc, char** argv)
 
 		if (strcmp("wr", act) == 0)
 		{
+			//Matrix->PrintMatrix(Matrix->NNZ);
 			maxvalJD = Matrix->maxvalJDMatrix(*Matrix);
+			cout << "maxvaljd " << maxvalJD << endl;
+			//проблема, maxval = 0, вызова функции не происходит - дальше проблемы
 			*JD = JDMatrix(Matrix->NNZ, Matrix->N, maxvalJD);
 			startTime = getCPUTime();
 			Converters::COOToJD(*Matrix, *JD);
 			endTime = getCPUTime();
 			fprintf(fp, "Time Convert in \n\nJD: \t\t%.15f\n", endTime - startTime);
 			sprintf(fileInput, "JD_%s.bin", name);
+			JD->Print();
 			JD->WriteInBinaryFile(*JD, fileInput);
 		}
 		if (strcmp("r", act) == 0)
 		{
 			sprintf(fileInput, "JD_%s.bin", name);
-			JD = JD->ReadFromBinaryFile(fileInput);
-
+			JD->ReadFromBinaryFile(fileInput);
+			cout << "jd " << JD->N << " " << JD->NNZ << " " << JD->numbdiag << endl;
+			//JD->Print();
 		}
+		cout << "jd " << JD->N <<" "<<JD->NNZ<<" "<<JD->numbdiag<< endl;
 		result_jd = new FPTYPE[Matrix->N];
 		startTime = getCPUTime();
 		JD->MatrixVectorMultJD(JD, v, Matrix->N, result_jd);
 		endTime = getCPUTime();
 		fprintf(fp, "\nTime Matrix-Vector multiplication in \n\nJD: \t\t%lf\n", endTime - startTime);
 
-		sprintf(fileInput, "CRS_%s.bin", name);
-		CRS = CRS->ReadFromBinaryFile(fileInput);
+	for (int i = 0; i < JD->N; i++)
+		{
+			cout << "res " << result_jd[i] << endl;
+		}
+		/*CRS = CRS->ReadFromBinaryFile("CRS_b1_ss.bin");
 
 		for (int i = 0; i < Matrix->N + 1; i++)
 		{
@@ -443,26 +452,27 @@ int main(int argc, char** argv)
 		startTime = getCPUTime();
 		mkl_dcsrgemv("N", &(CRS->N), CRS->val, CRS->row_ptr, CRS->col_ind, v, result_mkl);
 		endTime = getCPUTime();
-		fprintf(fp, "\nTime Matrix-Vector multiplication in \n\nMKL: \t\t%lf\n", endTime - startTime);
-		fprintf(fp, "\ndifference %.15f with JD\n", CheckCorrectness(result_jd, result_mkl, CRS->N));
 
-		delete[] v;
-		delete[] result_mkl;
-		delete[] result_jd;
+		fprintf(fp, "\ndifference %.15f with CСS\n", CheckCorrectness(result_jd, result_mkl, CRS->N));
+*/
 
 	}
-	delete[] fileName;
-	delete[] fileInput;
-	delete[] typeMatrix;
-	delete[] act;
-	delete[] name;
-	Matrix->~COOMatrix();
-	CRS->~CRSMatrix();
-	CCS->~CCSMatrix();
-	CD->~CDMatrix();
-	JD->~JDMatrix();
+	
+	//char name[100] = "matrix.mtx";
+	//char name2[100];
+	//char name3[100];
+	//strncpy(name3, name, strchr(name, '.') - name);
+	//sprintf(name2, "COO_%s.bin", name3);
+//	delete[] name;
+	//delete[] act;
 
+	//delete[] fileName;
+	//delete[] fileInput;
+	//delete[] typeMatrix;
 
+//	act = new char[3];
+	//strcpy(fileName, argv[1]);
+ 	//Matrix->~COOMatrix();
 	system("pause");
 	return 0;
 }

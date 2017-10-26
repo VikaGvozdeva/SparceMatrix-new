@@ -36,15 +36,17 @@ typedef float FPTYPE;
 class CDMatrix
 {
 public:
+	
 	INTTYPE N;
 	INTTYPE NNZ;
 
 	INTTYPE B;
-	INTTYPE R;
+	//INTTYPE R;
 	INTTYPE* diag;
 	FPTYPE** val;
 
-	CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B, INTTYPE _R);
+	//CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B, INTTYPE _R);
+	CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B);
 	void Print();
 	~CDMatrix();
 	CDMatrix(const CDMatrix &Matrix);

@@ -34,7 +34,7 @@ class JDMatrix
 public:
 	INTTYPE NNZ;
 	INTTYPE N;
-	INTTYPE numbdiag;
+	//INTTYPE numbdiag;
 	INTTYPE *perm;
 	FPTYPE *jdiag;
 	INTTYPE *col_ind;
@@ -42,10 +42,11 @@ public:
 	INTTYPE MaxNNZ;
 
 	JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ);	
-	~JDMatrix();	
+	~JDMatrix();
+	void Print();
 	JDMatrix(const JDMatrix &Matrix);
 	JDMatrix *ReadFromBinaryFile(char *filename);	
-	void WriteInBinaryFile(JDMatrix &Matrix, char *filename);		
+	void WriteInBinaryFile(const JDMatrix &Matrix, char *filename);		
 	FPTYPE* MatrixVectorMultJD(JDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result);
 	JDMatrix& operator=(const JDMatrix &Matrix);
 };

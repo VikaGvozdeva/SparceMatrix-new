@@ -6,13 +6,14 @@ JDMatrix::JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
 		N = _N;
 		NNZ = _NNZ;
 		MaxNNZ = _MaxNNZ;
-		if ((NNZ != 0) && (N != 0) && (MaxNNZ != 0))
-		{
+		numbdiag = _MaxNNZ;
+		//if ((NNZ != 0) && (N != 0) && (numbdiag != 0))
+		//{
 			jdiag = new FPTYPE[NNZ];
 			perm = new INTTYPE[N];
 			col_ind = new INTTYPE[NNZ];
-			jd_ptr = new INTTYPE[MaxNNZ + 1];
-			for (i = 0; i < MaxNNZ + 1; i++)
+			jd_ptr = new INTTYPE[numbdiag + 1];
+			for (i = 0; i < numbdiag + 1; i++)
 			{
 				jd_ptr[i] = 0;
 			}
@@ -25,7 +26,7 @@ JDMatrix::JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
 				jdiag[i] = 0;
 				col_ind[i] = 0;
 			}
-		}
+		//}
 	}
 JDMatrix::~JDMatrix()
 	{
@@ -46,13 +47,13 @@ if (this != &Matrix) {
 		N = Matrix.N;
 		NNZ = Matrix.NNZ;
 		MaxNNZ = Matrix.MaxNNZ;
-
+		numbdiag = Matrix.MaxNNZ;
 
 		jdiag = new FPTYPE[NNZ];
 		perm = new INTTYPE[N];
 		col_ind = new INTTYPE[NNZ];
-		jd_ptr = new INTTYPE[MaxNNZ + 1];
-		for (i = 0; i < MaxNNZ + 1; i++)
+		jd_ptr = new INTTYPE[numbdiag + 1];
+		for (i = 0; i < numbdiag + 1; i++)
 		{
 			jd_ptr[i] = Matrix.jd_ptr[i];
 		}
@@ -75,13 +76,13 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 	N = Matrix.N;
 	NNZ = Matrix.NNZ;
 	MaxNNZ = Matrix.MaxNNZ;
-	//numbdiag = Matrix.MaxNNZ;
+	numbdiag = Matrix.MaxNNZ;
 
 	jdiag = new FPTYPE[NNZ];
 	perm = new INTTYPE[N];
 	col_ind = new INTTYPE[NNZ];
-	jd_ptr = new INTTYPE[MaxNNZ + 1];
-	for (i = 0; i < MaxNNZ + 1; i++)
+	jd_ptr = new INTTYPE[numbdiag + 1];
+	for (i = 0; i < numbdiag + 1; i++)
 	{
 		jd_ptr[i] = Matrix.jd_ptr[i];
 	}
@@ -98,7 +99,7 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 	JDMatrix *JDMatrix::ReadFromBinaryFile(char *filename)
 	{
 		FILE *JDmtx = NULL;
-		int N, NNZ, MaxNNZ;
+		int N, NNZ, MaxNNZ, numbdiag;
 		JDmtx = fopen(filename, "rb");
 		if (JDmtx == NULL)
 		{
@@ -107,6 +108,7 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 		fread(&N, sizeof(INTTYPE), 1, JDmtx);
 		fread(&NNZ, sizeof(INTTYPE), 1, JDmtx);
 		fread(&MaxNNZ, sizeof(INTTYPE), 1, JDmtx);
+		//fread(&numbdiag, sizeof(INTTYPE), 1, JDmtx);
 		JDMatrix * Matrix = new JDMatrix(NNZ, N, MaxNNZ);
 		fread(Matrix->jdiag, sizeof(FPTYPE), Matrix->NNZ, JDmtx);
 		fread(Matrix->col_ind, sizeof(INTTYPE), Matrix->NNZ, JDmtx);
@@ -129,6 +131,7 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 		fwrite(&Matrix.N, sizeof(INTTYPE), 1, JDmtx);
 		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, JDmtx);
 		fwrite(&Matrix.MaxNNZ, sizeof(INTTYPE), 1, JDmtx);
+		//fwrite(&Matrix.numbdiag, sizeof(INTTYPE), 1, JDmtx);
 		fwrite(Matrix.jdiag, sizeof(FPTYPE), Matrix.NNZ, JDmtx);
 		fwrite(Matrix.col_ind, sizeof(INTTYPE), Matrix.NNZ, JDmtx);
 		fwrite(Matrix.jd_ptr, sizeof(INTTYPE), Matrix.MaxNNZ + 1, JDmtx);
@@ -148,7 +151,7 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 		for (i = 0; i < N; i++)
 			printf("%d , ", perm[i]);
 		printf("jd_ptr:");
-		for (i = 0; i < MaxNNZ +1; i++)
+		for (i = 0; i < numbdiag +1; i++)
 			printf("%d , ", jd_ptr[i]);
 
 	}

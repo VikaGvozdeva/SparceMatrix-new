@@ -132,10 +132,10 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 
 	void Converters::COOToJD(const COOMatrix &Mtx, JDMatrix &Matrix)
 	{
-		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, MaxNNZ = 0;
+		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, maxval = 0;
 		NNZ = Mtx.NNZ;
 		N = Mtx.N;
-		MaxNNZ = Matrix.MaxNNZ;
+		maxval = Matrix.MaxNNZ;
 		vector< vector<INTTYPE> > col_ind_;
 		col_ind_.resize(N);
 		vector< vector<FPTYPE> > val_;
@@ -156,7 +156,9 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 
 		for (i = 0; i < N; i++)
 		{
+
 			Matrix.perm[i] = nnz_row_ind[i];
+			//cout <<" nnz row ind -  "<<nnz_row_ind[i] << endl;
 		}
 		for (i = 0; i < NNZ; i++)
 		{
@@ -174,8 +176,9 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 
 		int l = 0;
 		int m = 0;
-		for (i=0; i<MaxNNZ;i++)
+		for (i = 0; i < N; i++)
 		{
+			//m++;
 			for (j = 0; j < nnz_col[i]; j++)
 			{
 				Matrix.jdiag[l] = val_[Matrix.perm[j]][i];
@@ -184,19 +187,19 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 			}
 		}
 		Matrix.jd_ptr[0] = 0;
-		for (i = 1; i < MaxNNZ + 1; i++)
+		for (i = 1; i < N + 1; i++)
 		{
 			Matrix.jd_ptr[i] = nnz_col[i - 1];
 		}
 
-		for (i = 2; i < MaxNNZ + 1; i++)
+		for (i = 2; i < N + 1; i++)
 		{
 			Matrix.jd_ptr[i] += Matrix.jd_ptr[i - 1];
 		}
 
-		delete[] nnz_row;
-		delete[] nnz_col;
-		delete[] nnz_row_ind;
+		//delete[] nnz_row;
+		//delete[] nnz_col;
+		//delete[] nnz_row_ind;
 
 	}
 

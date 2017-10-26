@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<snippets>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\coo.cpp" md5="c3a203b66383af39482efff6fc6e6386">
+    <snippet line="15">
+      <line line="12">        if ((NNZ != 0) &amp;&amp; (N != 0))</line>
+      <line line="13">        {</line>
+      <line line="14">            val = new FPTYPE[NNZ];</line>
+      <line line="15">            col_ind = new INTTYPE[NNZ];</line>
+      <line line="16">            row_ind = new INTTYPE[NNZ];</line>
+    </snippet>
+    <snippet line="16">
+      <line line="13">        {</line>
+      <line line="14">            val = new FPTYPE[NNZ];</line>
+      <line line="15">            col_ind = new INTTYPE[NNZ];</line>
+      <line line="16">            row_ind = new INTTYPE[NNZ];</line>
+      <line line="17">            NNZ_row = new INTTYPE[N];</line>
+    </snippet>
+    <snippet line="17">
+      <line line="14">            val = new FPTYPE[NNZ];</line>
+      <line line="15">            col_ind = new INTTYPE[NNZ];</line>
+      <line line="16">            row_ind = new INTTYPE[NNZ];</line>
+      <line line="17">            NNZ_row = new INTTYPE[N];</line>
+      <line line="18">            for (i = 0; i &lt; N; i++)</line>
+    </snippet>
+    <snippet line="99">
+      <line line="96">        fread(&amp;N, sizeof(INTTYPE), 1, COOmtx);</line>
+      <line line="97">        fread(&amp;NNZ, sizeof(INTTYPE), 1, COOmtx);</line>
+      <line line="98">        COOMatrix * Matrix = new COOMatrix(NNZ, N);</line>
+      <line line="99">        fread(Matrix-&gt;val, sizeof(FPTYPE), Matrix-&gt;NNZ, COOmtx);</line>
+      <line line="100">        fread(Matrix-&gt;col_ind, sizeof(INTTYPE), Matrix-&gt;NNZ, COOmtx);</line>
+    </snippet>
+  </file>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\crs.cpp" md5="c7756565e806106f27769c2db4d6e6f2">
+    <snippet line="9">
+      <line line="6">        N = _N;</line>
+      <line line="7">        NNZ = _NNZ;</line>
+      <line line="8">        val = new FPTYPE[NNZ];</line>
+      <line line="9">        col_ind = new INTTYPE[NNZ];</line>
+      <line line="10">        row_ptr = new INTTYPE[N + 1];</line>
+    </snippet>
+    <snippet line="10">
+      <line line="7">        NNZ = _NNZ;</line>
+      <line line="8">        val = new FPTYPE[NNZ];</line>
+      <line line="9">        col_ind = new INTTYPE[NNZ];</line>
+      <line line="10">        row_ptr = new INTTYPE[N + 1];</line>
+      <line line="11">        for (int i = 0; i &lt; N + 1; i++)</line>
+    </snippet>
+    <snippet line="11">
+      <line line="8">        val = new FPTYPE[NNZ];</line>
+      <line line="9">        col_ind = new INTTYPE[NNZ];</line>
+      <line line="10">        row_ptr = new INTTYPE[N + 1];</line>
+      <line line="11">        for (int i = 0; i &lt; N + 1; i++)</line>
+      <line line="12">        {</line>
+    </snippet>
+  </file>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\jd.cpp" md5="2534fcbb9c22e80cb0da58b159b49027">
+    <snippet line="53">
+      <line line="50"/>
+      <line line="51">        jdiag = new FPTYPE[NNZ];</line>
+      <line line="52">        perm = new INTTYPE[N];</line>
+      <line line="53">        col_ind = new INTTYPE[NNZ];</line>
+      <line line="54">        jd_ptr = new INTTYPE[MaxNNZ + 1];</line>
+    </snippet>
+    <snippet line="55">
+      <line line="52">        perm = new INTTYPE[N];</line>
+      <line line="53">        col_ind = new INTTYPE[NNZ];</line>
+      <line line="54">        jd_ptr = new INTTYPE[MaxNNZ + 1];</line>
+      <line line="55">        for (i = 0; i &lt; MaxNNZ + 1; i++)</line>
+      <line line="56">        {</line>
+    </snippet>
+    <snippet line="188">
+      <line line="185">        }</line>
+      <line line="186"/>
+      <line line="187">        free(temp);</line>
+      <line line="188">        return result;</line>
+      <line line="189">    }</line>
+    </snippet>
+  </file>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\source.cpp" md5="19aa8977be5e5e66e6e73545a74c68d3">
+    <snippet line="177">
+      <line line="174"/>
+      <line line="175">    FILE *fp = fopen("data.dt", "w");</line>
+      <line line="176">    COOMatrix* Matrix = new COOMatrix(0, 0);</line>
+      <line line="177">    CRSMatrix* CRS = new CRSMatrix(0, 0);</line>
+      <line line="178">    CCSMatrix* CCS = new CCSMatrix(0,0);</line>
+    </snippet>
+    <snippet line="178">
+      <line line="175">    FILE *fp = fopen("data.dt", "w");</line>
+      <line line="176">    COOMatrix* Matrix = new COOMatrix(0, 0);</line>
+      <line line="177">    CRSMatrix* CRS = new CRSMatrix(0, 0);</line>
+      <line line="178">    CCSMatrix* CCS = new CCSMatrix(0,0);</line>
+      <line line="179">    CDMatrix* CD = new CDMatrix(0,0,0);</line>
+    </snippet>
+    <snippet line="181">
+      <line line="178">    CCSMatrix* CCS = new CCSMatrix(0,0);</line>
+      <line line="179">    CDMatrix* CD = new CDMatrix(0,0,0);</line>
+      <line line="180">    JDMatrix* JD = new JDMatrix(0,0,0);</line>
+      <line line="181">    //SLMatrix *SL;</line>
+      <line line="182"/>
+    </snippet>
+    <snippet line="431">
+      <line line="428">        }</line>
+      <line line="429">        cout &lt;&lt; "jd " &lt;&lt; JD-&gt;N &lt;&lt;" "&lt;&lt;JD-&gt;NNZ&lt;&lt;" "&lt;&lt;JD-&gt;MaxNNZ &lt;&lt; endl;</line>
+      <line line="430">        result_jd = new FPTYPE[Matrix-&gt;N];</line>
+      <line line="431">        startTime = getCPUTime();</line>
+      <line line="432">        JD-&gt;MatrixVectorMultJD(JD, v, Matrix-&gt;N, result_jd);</line>
+    </snippet>
+  </file>
+  <file name="f:\dd\vctools\crt\crtw32\stdhpp\iosfwd" md5="a34a79668fb37d6889767acca1da97a6">
+    <snippet line="589">
+      <line line="586">        const _Elem&amp; _Ch) _NOEXCEPT</line>
+      <line line="587">        {    // convert character to metacharacter</line>
+      <line line="588">        return ((unsigned char)_Ch);</line>
+      <line line="589">        }</line>
+      <line line="590"/>
+    </snippet>
+  </file>
+</snippets>
