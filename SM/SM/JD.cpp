@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "include\JD.h"
+#include "JD.h"
 JDMatrix::JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
 	{
 		int i;
@@ -28,9 +28,65 @@ JDMatrix::~JDMatrix()
 		delete[] jd_ptr;
 
 	}
+JDMatrix& JDMatrix::operator=(const JDMatrix &Matrix)
+{
+	int i;
+	if (this != &Matrix) {
+		delete[] perm;
+		delete[] jdiag;
+		delete[] col_ind;
+		delete[] jd_ptr;
+		N = Matrix.N;
+		NNZ = Matrix.NNZ;
+		MaxNNZ = Matrix.MaxNNZ;
+		numbdiag = Matrix.MaxNNZ;
+
+		jdiag = new FPTYPE[NNZ];
+		perm = new INTTYPE[N];
+		col_ind = new INTTYPE[NNZ];
+		jd_ptr = new INTTYPE[N + 1];
+		for (i = 0; i < N + 1; i++)
+		{
+			jd_ptr[i] = Matrix.jd_ptr[i];
+		}
+		for (i = 0; i < N ; i++)
+		{
+			perm[i] = Matrix.perm[i];
+		}
+		for (i = 0; i < NNZ; i++)
+		{
+			jdiag[i] = Matrix.jdiag[i];
+			col_ind[i] = Matrix.col_ind[i];
+		}
+
+	}
+	return *this;
+}
 JDMatrix::JDMatrix(const JDMatrix &Matrix)
 	{
-		//
+	int i;
+	N = Matrix.N;
+	NNZ = Matrix.NNZ;
+	MaxNNZ = Matrix.MaxNNZ;
+	numbdiag = Matrix.MaxNNZ;
+
+	jdiag = new FPTYPE[NNZ];
+	perm = new INTTYPE[N];
+	col_ind = new INTTYPE[NNZ];
+	jd_ptr = new INTTYPE[N + 1];
+	for (i = 0; i < N + 1; i++)
+	{
+		jd_ptr[i] = Matrix.jd_ptr[i];
+	}
+	for (i = 0; i < N; i++)
+	{
+		perm[i] = Matrix.perm[i];
+	}
+	for (i = 0; i < NNZ; i++)
+	{
+		jdiag[i] = Matrix.jdiag[i];
+		col_ind[i] = Matrix.col_ind[i];
+	}
 	}
 	JDMatrix *JDMatrix::ReadFromBinaryFile(char *filename)
 	{

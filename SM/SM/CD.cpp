@@ -1,25 +1,32 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "include\CD.h"
-CDMatrix::CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B)
+#include "CD.h"
+CDMatrix::CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B, INTTYPE _R)
+{
+	int i;
+	int j;
+	N = _N;
+	NNZ = _NNZ;
+	B = _B;
+	R = _R;
+	if ((NNZ != 0) && (N != 0) && (B != 0))
 	{
-		int i;
-		int j;
-		N = _N;
-		NNZ = _NNZ;
-		B = _B;
 		diag = new INTTYPE[B];
-		val = new FPTYPE*[N];
-		for (i = 0; i < N; i++)
+		val = new FPTYPE*[R];
+		for (i = 0; i < B; i++)
+		{
+			diag[i] = 0;
+		}
+		for (i = 0; i < R; i++)
 		{
 			val[i] = new FPTYPE[B];
 		}
-		for (i = 0; i < N; i++) {
+		for (i = 0; i < R; i++) {
 			for (j = 0; j < B; j++)
 				val[i][j] = 0;
 		}
-
 	}
+}
 int  compare(const void * x1, const void * x2)
 {
 	return (*(int*)x1 - *(int*)x2);
@@ -29,17 +36,19 @@ int  compare(const void * x1, const void * x2)
 	void CDMatrix::Print()
 	{
 		int i, j;
-		printf("val:");
-		for (i = 0; i < B; i++)
-		{
-			printf("diag  \n", i);
-			for (j = 0; j <N; j++)
-				printf("%lf , ", val[i][j]);
-		}
 		printf(" \n diag:");
 		for (i = 0; i < B; i++)
 			printf("%d , ", diag[i]);
 
+		printf("val:");
+		for (i = 0; i < B; i++)
+		{
+			printf("diag  \n", i);
+			for (j = 0; j < R; j++)
+				printf("%lf , ", val[i][j], "\n");
+			
+		}
+		
 		printf("\n");
 	}
 	CDMatrix::~CDMatrix()
@@ -71,6 +80,41 @@ int  compare(const void * x1, const void * x2)
 				val[i][j] = Matrix.val[i][j];
 			}
 	}
+
+	CDMatrix& CDMatrix::operator=(const CDMatrix &Matrix)
+	{
+		int i, j;
+		if (this != &Matrix) {
+			delete[] diag;
+			for (int i = 0; i < R; i++)
+			{
+				delete[] val[i];
+			}
+			delete[] val;
+
+			N = Matrix.N;
+			NNZ = Matrix.NNZ;
+			B = Matrix.B;
+			R = Matrix.R;
+
+			diag = new INTTYPE[B];
+			val = new FPTYPE*[R];
+			for (i = 0; i < B; i++)
+			{
+				diag[i] = Matrix.diag[i];
+			}
+			for (i = 0; i < R; i++)
+			{
+				val[i] = new FPTYPE[B];
+			}
+			for (i = 0; i < R; i++) {
+				for (j = 0; j < B; j++)
+					val[i][j] = Matrix.val[i][j];
+			}
+
+		}
+		return *this;
+	}
 	CDMatrix *CDMatrix::ReadFromBinaryFile(char *filename)
 	{
 		FILE *CDmtx = NULL;
@@ -83,9 +127,10 @@ int  compare(const void * x1, const void * x2)
 		fread(&N, sizeof(INTTYPE), 1, CDmtx);
 		fread(&NNZ, sizeof(INTTYPE), 1, CDmtx);
 		fread(&B, sizeof(INTTYPE), 1, CDmtx);
-		CDMatrix * Matrix = new CDMatrix(NNZ, N, B);
+		fread(&R, sizeof(INTTYPE), 1, CDmtx);
+		CDMatrix * Matrix = new CDMatrix(NNZ, N, B, R);
 		fread(Matrix->diag, sizeof(INTTYPE), Matrix->B, CDmtx);
-		fread(Matrix->val, sizeof(FPTYPE), Matrix->B * Matrix->N, CDmtx);
+		fread(Matrix->val, sizeof(FPTYPE), Matrix->B * Matrix->R, CDmtx);
 		fclose(CDmtx);
 		return Matrix;
 	}
@@ -148,8 +193,9 @@ int  compare(const void * x1, const void * x2)
 		fwrite(&Matrix.N, sizeof(INTTYPE), 1, CDmtx);
 		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, CDmtx);
 		fwrite(&Matrix.B, sizeof(INTTYPE), 1, CDmtx);
+		fwrite(&Matrix.R, sizeof(INTTYPE), 1, CDmtx);
 		fwrite(Matrix.diag, sizeof(INTTYPE), Matrix.B, CDmtx);
-		fwrite(Matrix.val, sizeof(INTTYPE), Matrix.B * Matrix.N, CDmtx);
+		fwrite(Matrix.val, sizeof(INTTYPE), Matrix.B * Matrix.R, CDmtx);
 		fclose(CDmtx);
 	}
 	FPTYPE* CDMatrix::MatrixVectorMultCD(CDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)

@@ -7,7 +7,7 @@
 #include <string.h>
 #include <iostream>
 #include <inttypes.h>
-#include "include\COO.h"
+#include "COO.h"
 
 using namespace std;
 
@@ -40,10 +40,11 @@ public:
 	INTTYPE NNZ;
 
 	INTTYPE B;
+	INTTYPE R;
 	INTTYPE* diag;
 	FPTYPE** val;
 
-	CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B);
+	CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B, INTTYPE _R);
 	void Print();
 	~CDMatrix();
 	CDMatrix(const CDMatrix &Matrix);
@@ -52,6 +53,7 @@ public:
 	void FillDiagArray(COOMatrix Matrix);
 	void WriteInBinaryFile(const CDMatrix &Matrix, char *filename);	
 	FPTYPE* MatrixVectorMultCD(CDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result);
-	
+	CDMatrix& operator=(const CDMatrix &Matrix);
+
 };
 #endif
