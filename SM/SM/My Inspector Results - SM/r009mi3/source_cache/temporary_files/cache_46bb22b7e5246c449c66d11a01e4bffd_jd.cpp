@@ -6,14 +6,14 @@ JDMatrix::JDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _MaxNNZ)
 		N = _N;
 		NNZ = _NNZ;
 		MaxNNZ = _MaxNNZ;
-		//numbdiag = _MaxNNZ;
+		numbdiag = _MaxNNZ;
 		//if ((NNZ != 0) && (N != 0) && (numbdiag != 0))
 		//{
 			jdiag = new FPTYPE[NNZ];
 			perm = new INTTYPE[N];
 			col_ind = new INTTYPE[NNZ];
-			jd_ptr = new INTTYPE[MaxNNZ + 1];
-			for (i = 0; i < MaxNNZ + 1; i++)
+			jd_ptr = new INTTYPE[numbdiag + 1];
+			for (i = 0; i < numbdiag + 1; i++)
 			{
 				jd_ptr[i] = 0;
 			}

@@ -176,8 +176,7 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 
 		int l = 0;
 		int m = 0;
-		for (i=0; i<maxval;i++)
-		//for (i = 0; i < N; i++)
+		for (i = 0; i < N; i++)
 		{
 			//m++;
 			for (j = 0; j < nnz_col[i]; j++)
@@ -188,19 +187,19 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 			}
 		}
 		Matrix.jd_ptr[0] = 0;
-		for (i = 1; i < maxval + 1; i++)
+		for (i = 1; i < N + 1; i++)
 		{
 			Matrix.jd_ptr[i] = nnz_col[i - 1];
 		}
 
-		for (i = 2; i < maxval + 1; i++)
+		for (i = 2; i < N + 1; i++)
 		{
 			Matrix.jd_ptr[i] += Matrix.jd_ptr[i - 1];
 		}
 
-		delete[] nnz_row;
-		delete[] nnz_col;
-		delete[] nnz_row_ind;
+		//delete[] nnz_row;
+		//delete[] nnz_col;
+		//delete[] nnz_row_ind;
 
 	}
 

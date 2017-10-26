@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<snippets>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\source.cpp" md5="abc5193bde7ef2924cd01a5d39365c26">
+    <snippet line="190">
+      <line line="187">    act = new char[3];</line>
+      <line line="188">    strcpy(fileName, argv[1]);</line>
+      <line line="189">    char* name = new char[strlen(fileName) - 4];</line>
+      <line line="190">    //strncpy(name, fileName, strchr(fileName, '.')- fileName);</line>
+      <line line="191">    strcpy(act, argv[2]);</line>
+    </snippet>
+    <snippet line="401">
+      <line line="398">        Matrix = Matrix-&gt;ReadFromBinaryFile(fileInput);</line>
+      <line line="399">        maxvalJD = Matrix-&gt;maxvalJDMatrix(*Matrix);</line>
+      <line line="400">        FPTYPE* v = new FPTYPE[Matrix-&gt;N];</line>
+      <line line="401"/>
+      <line line="402">        for (int i = 0; i &lt; Matrix-&gt;N; i++)</line>
+    </snippet>
+    <snippet line="431">
+      <line line="428">        }</line>
+      <line line="429">        cout &lt;&lt; "jd " &lt;&lt; JD-&gt;N &lt;&lt;" "&lt;&lt;JD-&gt;NNZ&lt;&lt;" "&lt;&lt;JD-&gt;numbdiag&lt;&lt; endl;</line>
+      <line line="430">        result_jd = new FPTYPE[Matrix-&gt;N];</line>
+      <line line="431">        startTime = getCPUTime();</line>
+      <line line="432">        JD-&gt;MatrixVectorMultJD(JD, v, Matrix-&gt;N, result_jd);</line>
+    </snippet>
+  </file>
+</snippets>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<snippets>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\converter.cpp" md5="4ab069f8944568b534cefc5c99d90766">
+    <snippet line="192">
+      <line line="189">        for (i = 1; i &lt; N + 1; i++)</line>
+      <line line="190">        {</line>
+      <line line="191">            Matrix.jd_ptr[i] = nnz_col[i - 1];</line>
+      <line line="192">        }</line>
+      <line line="193"/>
+    </snippet>
+    <snippet line="197">
+      <line line="194">        for (i = 2; i &lt; N + 1; i++)</line>
+      <line line="195">        {</line>
+      <line line="196">            Matrix.jd_ptr[i] += Matrix.jd_ptr[i - 1];</line>
+      <line line="197">        }</line>
+      <line line="198"/>
+    </snippet>
+  </file>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\source.cpp" md5="abc5193bde7ef2924cd01a5d39365c26">
+    <snippet line="181">
+      <line line="178">    CCSMatrix* CCS = new CCSMatrix(0,0);</line>
+      <line line="179">    CDMatrix* CD = new CDMatrix(0,0,0);</line>
+      <line line="180">    JDMatrix* JD = new JDMatrix(0,0,0);</line>
+      <line line="181">    //SLMatrix *SL;</line>
+      <line line="182"/>
+    </snippet>
+    <snippet line="184">
+      <line line="181">    //SLMatrix *SL;</line>
+      <line line="182"/>
+      <line line="183">    fileName = new char[20];</line>
+      <line line="184">    fileInput = new char[30];</line>
+      <line line="185">    typeMatrix = new char[5];</line>
+    </snippet>
+    <snippet line="185">
+      <line line="182"/>
+      <line line="183">    fileName = new char[20];</line>
+      <line line="184">    fileInput = new char[30];</line>
+      <line line="185">    typeMatrix = new char[5];</line>
+      <line line="186"/>
+    </snippet>
+    <snippet line="186">
+      <line line="183">    fileName = new char[20];</line>
+      <line line="184">    fileInput = new char[30];</line>
+      <line line="185">    typeMatrix = new char[5];</line>
+      <line line="186"/>
+      <line line="187">    act = new char[3];</line>
+    </snippet>
+    <snippet line="188">
+      <line line="185">    typeMatrix = new char[5];</line>
+      <line line="186"/>
+      <line line="187">    act = new char[3];</line>
+      <line line="188">    strcpy(fileName, argv[1]);</line>
+      <line line="189">    char* name = new char[strlen(fileName) - 4];</line>
+    </snippet>
+    <snippet line="190">
+      <line line="187">    act = new char[3];</line>
+      <line line="188">    strcpy(fileName, argv[1]);</line>
+      <line line="189">    char* name = new char[strlen(fileName) - 4];</line>
+      <line line="190">    //strncpy(name, fileName, strchr(fileName, '.')- fileName);</line>
+      <line line="191">    strcpy(act, argv[2]);</line>
+    </snippet>
+    <snippet line="401">
+      <line line="398">        Matrix = Matrix-&gt;ReadFromBinaryFile(fileInput);</line>
+      <line line="399">        maxvalJD = Matrix-&gt;maxvalJDMatrix(*Matrix);</line>
+      <line line="400">        FPTYPE* v = new FPTYPE[Matrix-&gt;N];</line>
+      <line line="401"/>
+      <line line="402">        for (int i = 0; i &lt; Matrix-&gt;N; i++)</line>
+    </snippet>
+    <snippet line="431">
+      <line line="428">        }</line>
+      <line line="429">        cout &lt;&lt; "jd " &lt;&lt; JD-&gt;N &lt;&lt;" "&lt;&lt;JD-&gt;NNZ&lt;&lt;" "&lt;&lt;JD-&gt;numbdiag&lt;&lt; endl;</line>
+      <line line="430">        result_jd = new FPTYPE[Matrix-&gt;N];</line>
+      <line line="431">        startTime = getCPUTime();</line>
+      <line line="432">        JD-&gt;MatrixVectorMultJD(JD, v, Matrix-&gt;N, result_jd);</line>
+    </snippet>
+  </file>
+</snippets>

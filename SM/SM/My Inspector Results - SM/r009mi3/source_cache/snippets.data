@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<snippets>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\converter.cpp" md5="4ab069f8944568b534cefc5c99d90766">
+    <snippet line="143">
+      <line line="140">        vector&lt; vector&lt;FPTYPE&gt; &gt; val_;</line>
+      <line line="141">        val_.resize(N);</line>
+      <line line="142">        INTTYPE *nnz_row = new INTTYPE[N];</line>
+      <line line="143">        INTTYPE *nnz_col = new INTTYPE[N];</line>
+      <line line="144">        INTTYPE *nnz_row_ind = new INTTYPE[N];</line>
+    </snippet>
+    <snippet line="144">
+      <line line="141">        val_.resize(N);</line>
+      <line line="142">        INTTYPE *nnz_row = new INTTYPE[N];</line>
+      <line line="143">        INTTYPE *nnz_col = new INTTYPE[N];</line>
+      <line line="144">        INTTYPE *nnz_row_ind = new INTTYPE[N];</line>
+      <line line="145"/>
+    </snippet>
+  </file>
+  <file name="c:\users\vika\documents\github\sparcematrix-new\sm\sm\jd.cpp" md5="46bb22b7e5246c449c66d11a01e4bffd">
+    <snippet line="190">
+      <line line="187">        }</line>
+      <line line="188"/>
+      <line line="189">        free(temp);</line>
+      <line line="190">        return result;</line>
+      <line line="191">    }</line>
+    </snippet>
+  </file>
+</snippets>

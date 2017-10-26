@@ -46,7 +46,7 @@ CRSMatrix::~CRSMatrix() {
 	{
 		FILE *CRSmtx = NULL;
 		int N, NNZ;
-		CRSmtx = fopen("COOmtx.bin", "rb");
+		CRSmtx = fopen(filename, "rb");
 		if (CRSmtx == NULL)
 		{
 			printf("Error opening file");
