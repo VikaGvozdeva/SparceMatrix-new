@@ -55,6 +55,7 @@ public:
 
 	INTTYPE DiagCDMatrix(const COOMatrix& Matrix);
 	INTTYPE maxvalJDMatrix(const COOMatrix& Matrix);
+	INTTYPE nonZeroRows(const COOMatrix& Matrix);
 	INTTYPE diagSLMatrix(const COOMatrix& Matrix);
 
 };

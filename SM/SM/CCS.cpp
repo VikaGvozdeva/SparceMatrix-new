@@ -6,12 +6,15 @@ CCSMatrix::CCSMatrix(INTTYPE _NNZ, INTTYPE _N)
 	{
 		N = _N;
 		NNZ = _NNZ;
-		val = new FPTYPE[NNZ];
-		row_ind = new INTTYPE[NNZ];
-		col_ptr = new INTTYPE[N + 1];
-		for (int i = 0; i < N + 1; i++)
+		if ((NNZ != 0) && (N != 0))
 		{
-			col_ptr[i] = 0;
+			val = new FPTYPE[NNZ];
+			row_ind = new INTTYPE[NNZ];
+			col_ptr = new INTTYPE[N + 1];
+			for (int i = 0; i < N + 1; i++)
+			{
+				col_ptr[i] = 0;
+			}
 		}
 	}
 

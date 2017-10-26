@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "include\Converter.h"
+#include "Converter.h"
 void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 {
 	int i = first, j = last, x = s_arr[(first + last) / 2], tmp = 0;
@@ -100,8 +100,6 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 		vector< vector<FPTYPE> > val_;
 		val_.resize(diag_numb);
 
-		vector< vector<INTTYPE> > col_ind_;
-		col_ind_.resize(diag_numb);
 		vector< vector<INTTYPE> > row_ind_;
 		row_ind_.resize(diag_numb);
 
@@ -118,40 +116,19 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 				if (tmp_ind == val_[j][0])
 				{
 					val_[j].push_back(Mtx.val[i]);
-					if (tmp_ind >= 0) {
-						//val_[j].push_back(Mtx.val[i]);
-						//new
-						col_ind_[j].push_back(Mtx.col_ind[i]);
-					}
-					else
-					{
-						row_ind_[j].push_back(Mtx.row_ind[i]);
-					}
-				}
+					row_ind_[j].push_back(Mtx.row_ind[i]);
 			}
 		}
 		INTTYPE row_ind;
 		for (m = 0; m < diag_numb; m++) {
-			//for (n = diag_ptr[m]; n < diag_ptr[m + 1]; n++)
 			for (n = 1; n < val_[m].size(); n++)
 			{
-				if (Matrix.diag[m] < 0)
-				{
-					row_ind = row_ind_[m][n - 1];
-					Matrix.val[row_ind][m] = val_[m][n];
-
+				row_ind = row_ind_[m][n - 1];
+				Matrix.val[row_ind][m] = val_[m][n];
 				}
-				else
-				{
-					row_ind = col_ind_[m][n - 1];
-					Matrix.val[row_ind][m] = val_[m][n];
-				}
-				//p++;
-				//k++;
 			}
 		}
 
-		//	delete[] diag_ptr;
 	}
 
 	void Converters::COOToJD(const COOMatrix &Mtx, JDMatrix &Matrix)
@@ -224,63 +201,63 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 
 	}
 
-	void Converters::COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix)
-	{
-		int j = 0, k = 0, l = 0, tmp_ind = 0, m = 0, p = 0;
-		int NNZ = Mtx.NNZ;
-		int N = Mtx.N;
-		vector< vector<FPTYPE> > vec;
-		vec.resize(N - 1);
+	//void Converters::COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix)
+	//{
+	//	int j = 0, k = 0, l = 0, tmp_ind = 0, m = 0, p = 0;
+	//	int NNZ = Mtx.NNZ;
+	//	int N = Mtx.N;
+	//	vector< vector<FPTYPE> > vec;
+	//	vec.resize(N - 1);
 
-		INTTYPE* elem_before_diag = new INTTYPE[N - 1];
-		for (int i = 0; i < N - 1; i++)
-		{
-			elem_before_diag[i] = 0;
-		}
-		int g = 0, h = 0, o = 0;
+	//	INTTYPE* elem_before_diag = new INTTYPE[N - 1];
+	//	for (int i = 0; i < N - 1; i++)
+	//	{
+	//		elem_before_diag[i] = 0;
+	//	}
+	//	int g = 0, h = 0, o = 0;
 
-		j = 0; l = 0;
-		int pos = 0;
-		for (int i = 0; i < NNZ; i++)
-		{
-			if (Mtx.col_ind[i] < Mtx.row_ind[i])
-			{
-				vec[Mtx.row_ind[i] - 1].push_back(Mtx.val[i]);
-				elem_before_diag[Mtx.row_ind[i] - 1]++;
-				o++;
-			}
-			else
-			{
-				if (Mtx.col_ind[i] == Mtx.row_ind[i])
-				{
-					Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
-					g++;
-				}
-				else
-				{
-					Matrix.autr[pos] = Mtx.val[i];
-					Matrix.jptr[pos] = Mtx.row_ind[i];
-					h++; pos++;
-				}
-			}
-		}
-		//printf("diag %d, upper %d, low %d", g, h, o);
-		//system("pause");
-		for (int i = 0; i < N - 1; i++)
-		{
-			if (vec[i].size() != 0)
-			{
-				for (int j = 0; j < vec.size(); j++)
-				{
-					Matrix.altr[m] = vec[i][j];
-					m++;
-				}
-			}
-		}
+	//	j = 0; l = 0;
+	//	int pos = 0;
+	//	for (int i = 0; i < NNZ; i++)
+	//	{
+	//		if (Mtx.col_ind[i] < Mtx.row_ind[i])
+	//		{
+	//			vec[Mtx.row_ind[i] - 1].push_back(Mtx.val[i]);
+	//			elem_before_diag[Mtx.row_ind[i] - 1]++;
+	//			o++;
+	//		}
+	//		else
+	//		{
+	//			if (Mtx.col_ind[i] == Mtx.row_ind[i])
+	//			{
+	//				Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
+	//				g++;
+	//			}
+	//			else
+	//			{
+	//				Matrix.autr[pos] = Mtx.val[i];
+	//				Matrix.jptr[pos] = Mtx.row_ind[i];
+	//				h++; pos++;
+	//			}
+	//		}
+	//	}
+	//	//printf("diag %d, upper %d, low %d", g, h, o);
+	//	//system("pause");
+	//	for (int i = 0; i < N - 1; i++)
+	//	{
+	//		if (vec[i].size() != 0)
+	//		{
+	//			for (int j = 0; j < vec.size(); j++)
+	//			{
+	//				Matrix.altr[m] = vec[i][j];
+	//				m++;
+	//			}
+	//		}
+	//	}
 
-		for (p = 2; p < N + 1; p++)
-		{
-			Matrix.iptr[p] += Matrix.iptr[p - 1];
-		}
-		delete[] elem_before_diag;
-	}
+	//	for (p = 2; p < N + 1; p++)
+	//	{
+	//		Matrix.iptr[p] += Matrix.iptr[p - 1];
+	//	}
+	//	delete[] elem_before_diag;
+	//}

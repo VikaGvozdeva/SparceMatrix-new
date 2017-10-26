@@ -4,16 +4,17 @@
 #include <stdio.h>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 #include <time.h>
 #include <string.h>
 #include <iostream>
 #include <inttypes.h>
-#include "include\COO.h"
-#include "include\CCS.h"
-#include "include\CRS.h"
-#include "include\JD.h"
-#include "include\SL.h"
-#include "include\CD.h"
+#include "COO.h"
+#include "CCS.h"
+#include "CRS.h"
+#include "JD.h"
+#include "SL.h"
+#include "CD.h"
 
 using namespace std;
 
@@ -41,7 +42,7 @@ public:
 	static void COOToCCS(const COOMatrix &Mtx, CCSMatrix &Matrix);	
 	static void COOToCD(const COOMatrix &Mtx, CDMatrix &Matrix);
 	static void COOToJD(const COOMatrix &Mtx, JDMatrix &Matrix);
-	static void COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix);
+	//static void COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix);
 	static void qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last);
 };
 #endif
