@@ -45,12 +45,14 @@ public:
 	~COOMatrix();
 	COOMatrix(const COOMatrix &Matrix);
 	void PrintMatrix(int NNZ);
-	COOMatrix* ReadFromBinaryFile(char *filename);
-	void WriteInBinaryFile(const COOMatrix& Matrix, char* filename);
+	void ReadFromBinaryFile(char *filename);
+	void WriteInBinaryFile(char* filename);
 	COOMatrix &operator=(const COOMatrix & Matrix);
 	void ReadMatrixInfo(COOMatrix& Matrix, char *name);
 	COOMatrix* ReadMatrix(char *name);
 	void ReadNumberForMatrix(int& N, int& NNZ, char *name);
+//	friend ostream & operator<<(ostream &out, const CooMatrix &Matrix);
+
 
 
 	INTTYPE DiagCDMatrix(const COOMatrix& Matrix);

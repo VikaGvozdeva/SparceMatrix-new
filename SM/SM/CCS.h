@@ -37,10 +37,12 @@ public:
 	CCSMatrix(INTTYPE _NNZ, INTTYPE _N);
 	CCSMatrix(const CCSMatrix& Matrix);
 	~CCSMatrix();
-	CCSMatrix* ReadFromBinaryFile(char *filename);
-	void WriteInBinaryFile(CCSMatrix& Matrix, char* filename);
+	void ReadFromBinaryFile(char *filename);
+	void WriteInBinaryFile(char* filename);
 	CCSMatrix& operator=(const CCSMatrix &Matrix);
-	FPTYPE* MatrixVectorMultCCS(CCSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result);
+	void MatrixVectorMultCCS(FPTYPE *vec, INTTYPE vec_N, FPTYPE *result);
+	friend ostream & operator<<(ostream &out, const CCSMatrix &Matrix);
+
 	
 };
 #endif

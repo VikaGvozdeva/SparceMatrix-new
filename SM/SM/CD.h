@@ -41,21 +41,20 @@ public:
 	INTTYPE NNZ;
 
 	INTTYPE B;
-	//INTTYPE R;
 	INTTYPE* diag;
 	FPTYPE** val;
 
-	//CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B, INTTYPE _R);
 	CDMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _B);
 	void Print();
 	~CDMatrix();
 	CDMatrix(const CDMatrix &Matrix);
 	//int compare(const void * x1, const void * x2);
-	CDMatrix *ReadFromBinaryFile(char *filename);
-	void FillDiagArray(COOMatrix Matrix);
-	void WriteInBinaryFile(const CDMatrix &Matrix, char *filename);	
-	FPTYPE* MatrixVectorMultCD(CDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result);
+	void ReadFromBinaryFile(char *filename);
+	void FillDiagArray(const COOMatrix Matrix);
+	void WriteInBinaryFile(char *filename);	
+	void MatrixVectorMultCD(FPTYPE *vec, INTTYPE vec_N, FPTYPE *result);
 	CDMatrix& operator=(const CDMatrix &Matrix);
+	friend ostream & operator<<(ostream &out, const CDMatrix &Matrix);
 
 };
 #endif
