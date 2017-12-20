@@ -95,7 +95,7 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 		col_ind[i] = Matrix.col_ind[i];
 	}
 	}
-	JDMatrix *JDMatrix::ReadFromBinaryFile(char *filename)
+	void JDMatrix::ReadFromBinaryFile(char *filename)
 	{
 		FILE *JDmtx = NULL;
 		int N, NNZ, MaxNNZ;
@@ -107,17 +107,15 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 		fread(&N, sizeof(INTTYPE), 1, JDmtx);
 		fread(&NNZ, sizeof(INTTYPE), 1, JDmtx);
 		fread(&MaxNNZ, sizeof(INTTYPE), 1, JDmtx);
-		JDMatrix * Matrix = new JDMatrix(NNZ, N, MaxNNZ);
-		fread(Matrix->jdiag, sizeof(FPTYPE), Matrix->NNZ, JDmtx);
-		fread(Matrix->col_ind, sizeof(INTTYPE), Matrix->NNZ, JDmtx);
-		fread(Matrix->jd_ptr, sizeof(INTTYPE), Matrix->MaxNNZ + 1, JDmtx);
-		fread(Matrix->perm, sizeof(INTTYPE), Matrix->N, JDmtx);
+		fread(jdiag, sizeof(FPTYPE), NNZ, JDmtx);
+		fread(col_ind, sizeof(INTTYPE), NNZ, JDmtx);
+		fread(jd_ptr, sizeof(INTTYPE), MaxNNZ + 1, JDmtx);
+		fread(perm, sizeof(INTTYPE), N, JDmtx);
 		fclose(JDmtx);
-		return Matrix;
 
 	}
 
-	void JDMatrix::WriteInBinaryFile(const JDMatrix& Matrix,char* filename)
+	void JDMatrix::WriteInBinaryFile(char* filename)
 	{
 
 		FILE *JDmtx = NULL;
@@ -126,13 +124,13 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 		{
 			printf("Error opening file");
 		}
-		fwrite(&Matrix.N, sizeof(INTTYPE), 1, JDmtx);
-		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, JDmtx);
-		fwrite(&Matrix.MaxNNZ, sizeof(INTTYPE), 1, JDmtx);
-		fwrite(Matrix.jdiag, sizeof(FPTYPE), Matrix.NNZ, JDmtx);
-		fwrite(Matrix.col_ind, sizeof(INTTYPE), Matrix.NNZ, JDmtx);
-		fwrite(Matrix.jd_ptr, sizeof(INTTYPE), Matrix.MaxNNZ + 1, JDmtx);
-		fwrite(Matrix.perm, sizeof(INTTYPE), Matrix.N, JDmtx);
+		fwrite(&N, sizeof(INTTYPE), 1, JDmtx);
+		fwrite(&NNZ, sizeof(INTTYPE), 1, JDmtx);
+		fwrite(&MaxNNZ, sizeof(INTTYPE), 1, JDmtx);
+		fwrite(jdiag, sizeof(FPTYPE), NNZ, JDmtx);
+		fwrite(col_ind, sizeof(INTTYPE), NNZ, JDmtx);
+		fwrite(jd_ptr, sizeof(INTTYPE), MaxNNZ + 1, JDmtx);
+		fwrite(perm, sizeof(INTTYPE), N, JDmtx);
 		fclose(JDmtx);
 	}
 	void JDMatrix::Print()
@@ -152,10 +150,9 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 			printf("%d , ", jd_ptr[i]);
 
 	}
-	FPTYPE* JDMatrix::MatrixVectorMultJD(JDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	void JDMatrix::MatrixVectorMultJD(FPTYPE *vec, INTTYPE vec_N, FPTYPE *result)
 	{
 		int i = 0, j = 0, k = 0, NNZ = 0, tmp_ind = 0, maxval = 0, upper = 0;
-		NNZ = Matrix->NNZ;
 
 		FPTYPE* temp = new FPTYPE[N];
 		for (i = 0; i < N; i++)
@@ -164,12 +161,12 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 		}
 
 		int disp = 0;
-		for (int j = 0; j < Matrix->MaxNNZ; j++)
+		for (int j = 0; j < MaxNNZ; j++)
 		{
 
-			for (int i = 0; i < (Matrix->jd_ptr[j + 1] - Matrix->jd_ptr[j]); i++)
+			for (int i = 0; i < (jd_ptr[j + 1] - jd_ptr[j]); i++)
 			{
-				result[i] += Matrix->jdiag[disp] * vec[Matrix->col_ind[disp]];
+				result[i] += jdiag[disp] * vec[col_ind[disp]];
 				disp++;
 			}
 		}
@@ -177,7 +174,7 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 
 		for (i = 0; i < N; i++)
 		{
-			temp[Matrix->perm[i]] = result[i];
+			temp[perm[i]] = result[i];
 		}
 		for (i = 0; i < N; i++)
 		{
@@ -185,6 +182,5 @@ JDMatrix::JDMatrix(const JDMatrix &Matrix)
 		}
 
 		free(temp);
-		return result;
 	}
 

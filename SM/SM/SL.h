@@ -1,5 +1,4 @@
-#pragma once
-#ifndef MODULES_COOMATRIX_INCLUDE_SlMATRIX_H_
+#ifndef MODULES_COOMATRIX_INCLUDE_SLMATRIX_H_
 #define MODULES_COOMATRIX_INCLUDE_SLMATRIX_H_
 #include <inttypes.h>
 #include <stdlib.h>
@@ -9,7 +8,7 @@
 #include <string.h>
 #include <iostream>
 #include <inttypes.h>
-#include "include\COO.h"
+#include "COO.h"
 
 using namespace std;
 
@@ -43,12 +42,16 @@ public:
 	INTTYPE *jptr;
 	INTTYPE *iptr;
 
+
 	SLMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _diag);
+	SLMatrix(const SLMatrix &Matrix); 
+	SLMatrix& operator=(const SLMatrix &Matrix);
 	~SLMatrix();
-	SLMatrix(const COOMatrix &Matrix);
-	SLMatrix *ReadFromBinaryFile(char *filename);
-	void WriteInBinaryFile(SLMatrix Matrix);
-	FPTYPE* MatrixVectorMultSL(SLMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result);
-	
+	void PrintMatrix(INTTYPE  _NNZ, INTTYPE _N, INTTYPE _diag);
+	void ReadFromBinaryFile(char *filename);
+	void WriteInBinaryFile( char* filename);
+	void MatrixVectorMultSL(FPTYPE *vec, INTTYPE vec_N, FPTYPE *result);
+	friend ostream & operator<<(ostream &out, const SLMatrix &Matrix);
+
 };
 #endif

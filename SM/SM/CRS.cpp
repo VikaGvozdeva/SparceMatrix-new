@@ -42,7 +42,7 @@ CRSMatrix::~CRSMatrix() {
 
 	}
 
-	CRSMatrix* CRSMatrix::ReadFromBinaryFile(char *filename)
+void CRSMatrix::ReadFromBinaryFile(char *filename)
 	{
 		FILE *CRSmtx = NULL;
 		int N, NNZ;
@@ -54,14 +54,13 @@ CRSMatrix::~CRSMatrix() {
 		fread(&N, sizeof(INTTYPE), 1, CRSmtx);
 		fread(&NNZ, sizeof(INTTYPE), 1, CRSmtx);
 		CRSMatrix * Matrix = new CRSMatrix(NNZ, N);
-		fread(Matrix->val, sizeof(FPTYPE), Matrix->NNZ, CRSmtx);
-		fread(Matrix->col_ind, sizeof(INTTYPE), Matrix->NNZ, CRSmtx);
-		fread(Matrix->row_ptr, sizeof(INTTYPE), Matrix->N + 1, CRSmtx);
+		fread(val, sizeof(FPTYPE), NNZ, CRSmtx);
+		fread(col_ind, sizeof(INTTYPE), NNZ, CRSmtx);
+		fread(row_ptr, sizeof(INTTYPE), N + 1, CRSmtx);
 		fclose(CRSmtx);
-		return Matrix;
 	}
 
-	void CRSMatrix::WriteInBinaryFile(const CRSMatrix& Matrix, char* filename)
+	void CRSMatrix::WriteInBinaryFile(char* filename)
 	{
 		FILE *CRSmtx = NULL;
 		CRSmtx = fopen(filename, "wb");
@@ -69,30 +68,37 @@ CRSMatrix::~CRSMatrix() {
 		{
 			printf("Error opening file");
 		}
-		fwrite(&Matrix.N, sizeof(INTTYPE), 1, CRSmtx);
-		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, CRSmtx);
-		fwrite(Matrix.val, sizeof(FPTYPE), Matrix.NNZ, CRSmtx);
-		fwrite(Matrix.col_ind, sizeof(INTTYPE), Matrix.NNZ, CRSmtx);
-		fwrite(Matrix.row_ptr, sizeof(INTTYPE), Matrix.N + 1, CRSmtx);
+		fwrite(&N, sizeof(INTTYPE), 1, CRSmtx);
+		fwrite(&NNZ, sizeof(INTTYPE), 1, CRSmtx);
+		fwrite(val, sizeof(FPTYPE), NNZ, CRSmtx);
+		fwrite(col_ind, sizeof(INTTYPE), NNZ, CRSmtx);
+		fwrite(row_ptr, sizeof(INTTYPE), N + 1, CRSmtx);
 		fclose(CRSmtx);
 	}
 
-	void CRSMatrix::PrintMatrix(int _NNZ, int _N)
+	std::ostream & operator<<(ostream &out, const CRSMatrix &Matrix)
 	{
-		int i;
-		N = _N;
-		NNZ = _NNZ;
-		printf("val:");
-		for (i = 0; i < NNZ; i++)
-			printf("%lf , ", val[i]);
-		printf(" \n col_ind:");
-		for (i = 0; i < NNZ; i++)
-			printf("%d , ", col_ind[i]);
-		printf(" \n row_ptr:");
-		for (i = 0; i < N + 1; i++)
-			printf("%d , ", row_ptr[i]);
-		printf("\n");
+		out << "Val : " << endl;
+		for (INTTYPE i = 0; i < Matrix.NNZ; i++)
+		{
+			out << Matrix.val[i] << "  ";
+		}
+		out << endl;
+		out << "col_ind : " << endl;
+		for (INTTYPE i = 0; i < Matrix.NNZ; i++)
+		{
+			out << Matrix.col_ind[i] << "  ";
+		}
+		out << endl;
+		out << "row_ptr : " << endl;
+		for (INTTYPE i = 0; i < Matrix.N; i++)
+		{
+			out << Matrix.row_ptr[i] << "  ";
+		}
+		out << endl;
+		return out;
 	}
+
 	CRSMatrix& CRSMatrix::operator=(const CRSMatrix &Matrix)
 	{
 		int i;
@@ -117,26 +123,25 @@ CRSMatrix::~CRSMatrix() {
 		}
 		return *this;
 	}
-	FPTYPE* CRSMatrix::MatrixVectorMultCRS(CRSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	void CRSMatrix::MatrixVectorMultCRS(FPTYPE *vec, INTTYPE vec_N, FPTYPE *result)
 	{
 		int i, j;
 		double tmp;
-		for (i = 0; i < N; i++)
+		for (i = 0; i < vec_N; i++)
 		{
 			result[i] = 0;
 		}
-		if (N == Matrix->N)
+		if (vec_N == N)
 		{
 			for (i = 0; i < N; i++)
 			{
 				tmp = 0;
-				for (j = Matrix->row_ptr[i]; j < Matrix->row_ptr[i + 1]; j++)
+				for (j = row_ptr[i]; j < row_ptr[i + 1]; j++)
 				{
-					tmp += Matrix->val[j] * vec[Matrix->col_ind[j]];
+					tmp += val[j] * vec[col_ind[j]];
 				}
 				result[i] = tmp;
 			}
 		}
-		return result;
 	}
 

@@ -40,11 +40,12 @@ public:
 	CRSMatrix(INTTYPE _NNZ, INTTYPE _N);
 	CRSMatrix(const CRSMatrix& Matrix);
 	~CRSMatrix();
-	CRSMatrix *ReadFromBinaryFile(char *filename);
-	void WriteInBinaryFile(const CRSMatrix& Matrix, char* filename);
-	void PrintMatrix(int _NNZ, int _N);
+	void ReadFromBinaryFile(char *filename);
+	void WriteInBinaryFile(char* filename);
 	CRSMatrix& operator=(const CRSMatrix &Matrix);
-	FPTYPE* MatrixVectorMultCRS(CRSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result);
+	void MatrixVectorMultCRS(FPTYPE *vec, INTTYPE N, FPTYPE *result);
+	friend ostream & operator<<(ostream &out, const CRSMatrix &Matrix);
+
 	
 };
 #endif

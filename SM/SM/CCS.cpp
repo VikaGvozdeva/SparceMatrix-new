@@ -46,7 +46,7 @@ CCSMatrix::~CCSMatrix() {
 
 	}
 
-	CCSMatrix* CCSMatrix::ReadFromBinaryFile(char *filename)
+	void CCSMatrix::ReadFromBinaryFile(char *filename)
 	{
 		FILE *CCSmtx = NULL;
 		int N, NNZ;
@@ -57,15 +57,13 @@ CCSMatrix::~CCSMatrix() {
 		}
 		fread(&N, sizeof(INTTYPE), 1, CCSmtx);
 		fread(&NNZ, sizeof(INTTYPE), 1, CCSmtx);
-		CCSMatrix * Matrix = new CCSMatrix(NNZ, N);
-		fread(Matrix->val, sizeof(FPTYPE), Matrix->NNZ, CCSmtx);
-		fread(Matrix->row_ind, sizeof(INTTYPE), Matrix->NNZ, CCSmtx);
-		fread(Matrix->col_ptr, sizeof(INTTYPE), Matrix->N + 1, CCSmtx);
+		fread(val, sizeof(FPTYPE), NNZ, CCSmtx);
+		fread(row_ind, sizeof(INTTYPE), NNZ, CCSmtx);
+		fread(col_ptr, sizeof(INTTYPE), N + 1, CCSmtx);
 		fclose(CCSmtx);
-		return Matrix;
 	}
 
-	void CCSMatrix::WriteInBinaryFile(CCSMatrix& Matrix, char* filename)
+	void CCSMatrix::WriteInBinaryFile(char* filename)
 	{
 		FILE *CCSmtx = NULL;
 		CCSmtx = fopen(filename, "wb");
@@ -73,11 +71,11 @@ CCSMatrix::~CCSMatrix() {
 		{
 			printf("Error opening file");
 		}
-		fwrite(&Matrix.N, sizeof(INTTYPE), 1, CCSmtx);
-		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, CCSmtx);
-		fwrite(Matrix.val, sizeof(FPTYPE), Matrix.NNZ, CCSmtx);
-		fwrite(Matrix.row_ind, sizeof(INTTYPE), Matrix.NNZ, CCSmtx);
-		fwrite(Matrix.col_ptr, sizeof(INTTYPE), Matrix.N + 1, CCSmtx);
+		fwrite(&N, sizeof(INTTYPE), 1, CCSmtx);
+		fwrite(&NNZ, sizeof(INTTYPE), 1, CCSmtx);
+		fwrite(val, sizeof(FPTYPE),NNZ, CCSmtx);
+		fwrite(row_ind, sizeof(INTTYPE), NNZ, CCSmtx);
+		fwrite(col_ptr, sizeof(INTTYPE), N + 1, CCSmtx);
 		fclose(CCSmtx);
 	}
 	CCSMatrix& CCSMatrix::operator=(const CCSMatrix &Matrix)
@@ -104,23 +102,44 @@ CCSMatrix::~CCSMatrix() {
 		}
 		return *this;
 	}
-	FPTYPE* CCSMatrix::MatrixVectorMultCCS(CCSMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result)
+	void CCSMatrix::MatrixVectorMultCCS(FPTYPE *vec, INTTYPE vec_N, FPTYPE *result)
 	{
 		int i, j, k;
-		for (k = 0; k < N; k++)
+		for (k = 0; k < vec_N; k++)
 		{
 			result[k] = 0;
 		}
-		if (N == Matrix->N)
+		if (vec_N == N)
 		{
 			for (i = 0; i < N; i++)
 			{
-				for (j = Matrix->col_ptr[i]; j < Matrix->col_ptr[i + 1]; j++)
+				for (j = col_ptr[i]; j < col_ptr[i + 1]; j++)
 				{
-					result[Matrix->row_ind[j]] += vec[i] * Matrix->val[j];
+					result[row_ind[j]] += vec[i] * val[j];
 				}
 			}
 		}
-		return result;
 	}
 
+	std::ostream & operator<<(ostream &out, const CCSMatrix &Matrix)
+	{
+		out << "Val : " << endl;
+		for (INTTYPE i = 0; i < Matrix.NNZ; i++)
+		{
+			out << Matrix.val[i] << "  ";
+		}
+		out << endl;
+		out << "row_ind : " << endl;
+		for (INTTYPE i = 0; i < Matrix.NNZ; i++)
+		{
+			out << Matrix.row_ind[i] << "  ";
+		}
+		out << endl;
+		out << "col_ptr : " << endl;
+		for (INTTYPE i = 0; i < Matrix.N; i++)
+		{
+			out << Matrix.col_ptr[i] << "  ";
+		}
+		out << endl;
+		return out;
+	}

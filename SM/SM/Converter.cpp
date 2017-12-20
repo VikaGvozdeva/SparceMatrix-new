@@ -1,6 +1,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "Converter.h"
+//int  compare(const void * x1, const void * x2)
+//{
+//	return (*(int*)x1 - *(int*)x2);
+//
+//}
 void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 {
 	int i = first, j = last, x = s_arr[(first + last) / 2], tmp = 0;
@@ -32,6 +37,7 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 		qs(s_arr, _s_arr, first, j);
 }
 
+//void SymCOOToCOO(const COOMatrix &Mtx, COOMatrix &Matrix);
 	void Converters::COOToCRS(const COOMatrix &Mtx, CRSMatrix &Matrix)
 	{
 		int i = 0, j = 0, k = 0, NNZ = 0, N = 0, tmp_ind = 0, n = 0, m = 0;
@@ -92,10 +98,55 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 
 	void Converters::COOToCD(const COOMatrix &Mtx, CDMatrix &Matrix)
 	{
-		int i = 0, j = 0, n, k = 0, l = 0, NNZ = 0, N = 0, diag_ind = 0, B = 0, tmp_ind = 0, m = 0, diag_numb = 0;
+		int i = 0, j = 0, n, p = 0, k = 0, l = 0, NNZ = 0, N = 0, diag_ind = 0, B = 0, tmp_ind = 0, m = 0, diag_numb = 0;
 		NNZ = Mtx.NNZ;
 		N = Mtx.N;
 		diag_numb = Matrix.B;
+
+		//bool flag;
+
+		//INTTYPE *temp = new INTTYPE[2 * N - 1];
+
+		//for (int i = 0; i < 2 * N - 1; i++)
+		//{
+		//	//diag[i] = N + 1;
+		//	temp[i] = N + 1;
+		//}
+		//for (int i = 0; i < NNZ; i++)
+		//{
+		//	tmp_ind = Mtx.col_ind[i] - Mtx.row_ind[i];
+
+		//	for (int j = 0; j < 2 * N - 1; j++)
+		//	{
+		//		//if ((tmp_ind) != diag[j])
+		//		if ((tmp_ind) != temp[j])
+		//		{
+		//			flag = true;
+		//		}
+		//		else
+		//		{
+		//			flag = false;
+		//			break;
+		//		}
+
+		//	}
+
+		//	if (flag == true)
+		//	{
+		//		//diag[m++] = tmp_ind;
+		//		temp[p++] = tmp_ind;
+		//	}
+
+		//}
+
+		//diag_numb = p;
+		//qsort(&temp[0], m, sizeof(INTTYPE), compare);
+		//for (int i = 0; i < p; i++)
+		//{
+		//	Matrix.diag[i] = temp[i];
+		//}
+
+
 
 		vector< vector<FPTYPE> > val_;
 		val_.resize(diag_numb);
@@ -200,63 +251,69 @@ void Converters::qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last)
 
 	}
 
-	//void Converters::COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix)
-	//{
-	//	int j = 0, k = 0, l = 0, tmp_ind = 0, m = 0, p = 0;
-	//	int NNZ = Mtx.NNZ;
-	//	int N = Mtx.N;
-	//	vector< vector<FPTYPE> > vec;
-	//	vec.resize(N - 1);
+	void Converters::COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix)
+	{
+		int j = 0, k = 0, l = 0, tmp_ind = 0, m = 0, p = 0, pos = 0;
+		int h = 0, o = 0;
+		int NNZ = Mtx.NNZ;
+		int N = Mtx.N;
+		vector< vector<FPTYPE> > vec;
+		vec.resize(N);
 
-	//	INTTYPE* elem_before_diag = new INTTYPE[N - 1];
-	//	for (int i = 0; i < N - 1; i++)
-	//	{
-	//		elem_before_diag[i] = 0;
-	//	}
-	//	int g = 0, h = 0, o = 0;
+		INTTYPE* elem_before_diag = new INTTYPE[N];
+		for (int i = 0; i < N; i++)
+		{
+			elem_before_diag[i] = 0;
+		}
 
-	//	j = 0; l = 0;
-	//	int pos = 0;
-	//	for (int i = 0; i < NNZ; i++)
-	//	{
-	//		if (Mtx.col_ind[i] < Mtx.row_ind[i])
-	//		{
-	//			vec[Mtx.row_ind[i] - 1].push_back(Mtx.val[i]);
-	//			elem_before_diag[Mtx.row_ind[i] - 1]++;
-	//			o++;
-	//		}
-	//		else
-	//		{
-	//			if (Mtx.col_ind[i] == Mtx.row_ind[i])
-	//			{
-	//				Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
-	//				g++;
-	//			}
-	//			else
-	//			{
-	//				Matrix.autr[pos] = Mtx.val[i];
-	//				Matrix.jptr[pos] = Mtx.row_ind[i];
-	//				h++; pos++;
-	//			}
-	//		}
-	//	}
-	//	//printf("diag %d, upper %d, low %d", g, h, o);
-	//	//system("pause");
-	//	for (int i = 0; i < N - 1; i++)
-	//	{
-	//		if (vec[i].size() != 0)
-	//		{
-	//			for (int j = 0; j < vec.size(); j++)
-	//			{
-	//				Matrix.altr[m] = vec[i][j];
-	//				m++;
-	//			}
-	//		}
-	//	}
-
-	//	for (p = 2; p < N + 1; p++)
-	//	{
-	//		Matrix.iptr[p] += Matrix.iptr[p - 1];
-	//	}
-	//	delete[] elem_before_diag;
-	//}
+		for (int i = 0; i < NNZ; i++)
+		{
+			if (Mtx.col_ind[i] < Mtx.row_ind[i])
+			{
+				vec[Mtx.row_ind[i]].push_back(Mtx.val[i]);
+				elem_before_diag[Mtx.row_ind[i]]++;
+				//h++;
+			}
+			else if (Mtx.col_ind[i] > Mtx.row_ind[i])
+			{
+				Matrix.autr[pos] = Mtx.val[i];
+				Matrix.jptr[pos] = Mtx.row_ind[i];
+				pos++;
+			}
+			else if (Mtx.col_ind[i] == Mtx.row_ind[i])
+				{
+				Matrix.adiag[Mtx.col_ind[i]] = Mtx.val[i];
+				//o++;
+				}
+				
+		}
+		Matrix.iptr[0] = 0;
+		//Matrix.iptr[1] = 0;
+		//cout << " " << o << " " << pos << " " << h << endl;
+		for (int i = 0; i < N; i++)
+		{
+			if (elem_before_diag[i] != 0)
+			{
+				Matrix.iptr[i+1] = elem_before_diag[i];
+				for (int j = 0; j <elem_before_diag[i]; j++)
+				{
+					Matrix.altr[m] = vec[i][j];
+					m++;
+				}
+			}
+		}
+		//cout << "iptr " << endl;
+		//for (int i = 0; i < N+1; i++)
+		//{
+		//	cout << Matrix.iptr[i] <<endl;
+		//
+	
+		//}
+		Matrix.iptr[1] += Matrix.iptr[2];
+		//for (p = 2; p <= N + 1; p++)
+		for (p = 2; p < N+1; p++)
+		{
+			Matrix.iptr[p] += Matrix.iptr[p - 1];
+		}
+		delete[] elem_before_diag;
+	}

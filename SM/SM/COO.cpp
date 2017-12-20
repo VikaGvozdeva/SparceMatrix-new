@@ -31,7 +31,7 @@ COOMatrix& COOMatrix::operator=(const COOMatrix &Matrix)
 		val = new FPTYPE[NNZ];
 		row_ind = new INTTYPE[NNZ];
 		col_ind = new INTTYPE[NNZ];
-		std::cout << "was here" << std::endl;
+		//std::cout << "was here" << std::endl;
 		for (i = 0; i < NNZ; i++)
 		{
 			row_ind[i] = Matrix.row_ind[i];
@@ -77,18 +77,18 @@ COOMatrix::~COOMatrix()
 		}
 	}
 	}
-	void COOMatrix::PrintMatrix(int NNZ)
+	std::ostream & operator<<(ostream &out, const COOMatrix &Matrix)
 	{
-		int i;
-		for (i = 0; i < NNZ; i++)
-		{
-			printf("(%lf,%d,%d) , ", val[i], row_ind[i], col_ind[i]);
-		}
-		printf("\n");
+		//for (INTTYPE i = 0; i < Matrix.NNZ; i++)
+		//{
+		//	out << "(" << Matrix.val[i] << "," << Matrix.row_ind[i] << "," << Matrix.col_ind[i] << ") ,";
+		//}
+		//out << endl;
+		return out;
 	}
 
 
-	COOMatrix *COOMatrix::ReadFromBinaryFile(char *filename)
+	void COOMatrix::ReadFromBinaryFile(char *filename)
 	{
 		FILE *COOmtx = NULL;
 		int N, NNZ;
@@ -99,16 +99,14 @@ COOMatrix::~COOMatrix()
 		}
 		fread(&N, sizeof(INTTYPE), 1, COOmtx);
 		fread(&NNZ, sizeof(INTTYPE), 1, COOmtx);
-		COOMatrix * Matrix = new COOMatrix(NNZ, N);
-		fread(Matrix->val, sizeof(FPTYPE), Matrix->NNZ, COOmtx);
-		fread(Matrix->col_ind, sizeof(INTTYPE), Matrix->NNZ, COOmtx);
-		fread(Matrix->row_ind, sizeof(INTTYPE), Matrix->NNZ, COOmtx);
-		fread(Matrix->NNZ_row, sizeof(INTTYPE), Matrix->N, COOmtx);
+		fread(val, sizeof(FPTYPE), NNZ, COOmtx);
+		fread(col_ind, sizeof(INTTYPE), NNZ, COOmtx);
+		fread(row_ind, sizeof(INTTYPE), NNZ, COOmtx);
+		fread(NNZ_row, sizeof(INTTYPE), N, COOmtx);
 		fclose(COOmtx);
-		return Matrix;
 	}
 
-	void COOMatrix::WriteInBinaryFile(const COOMatrix& Matrix, char* filename)
+	void COOMatrix::WriteInBinaryFile(char* filename)
 	{
 		FILE *COOmtx = NULL;
 		COOmtx = fopen(filename, "wb");
@@ -116,12 +114,12 @@ COOMatrix::~COOMatrix()
 		{
 			printf("Error opening file");
 		}
-		fwrite(&Matrix.N, sizeof(INTTYPE), 1, COOmtx);
-		fwrite(&Matrix.NNZ, sizeof(INTTYPE), 1, COOmtx);
-		fwrite(Matrix.val, sizeof(FPTYPE), Matrix.NNZ, COOmtx);
-		fwrite(Matrix.col_ind, sizeof(INTTYPE), Matrix.NNZ, COOmtx);
-		fwrite(Matrix.row_ind, sizeof(INTTYPE), Matrix.NNZ, COOmtx);
-		fwrite(Matrix.NNZ_row, sizeof(INTTYPE), Matrix.N, COOmtx); 
+		fwrite(&N, sizeof(INTTYPE), 1, COOmtx);
+		fwrite(&NNZ, sizeof(INTTYPE), 1, COOmtx);
+		fwrite(val, sizeof(FPTYPE), NNZ, COOmtx);
+		fwrite(col_ind, sizeof(INTTYPE), NNZ, COOmtx);
+		fwrite(row_ind, sizeof(INTTYPE), NNZ, COOmtx);
+		fwrite(NNZ_row, sizeof(INTTYPE), N, COOmtx); 
 		fclose(COOmtx);
 	}
 

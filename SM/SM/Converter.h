@@ -38,11 +38,12 @@ class Converters
 {
 public:
 
+	//static void SymCOOToCOO(const COOMatrix &Mtx, COOMatrix &Matrix);
 	static void COOToCRS(const COOMatrix &Mtx, CRSMatrix &Matrix);
 	static void COOToCCS(const COOMatrix &Mtx, CCSMatrix &Matrix);	
 	static void COOToCD(const COOMatrix &Mtx, CDMatrix &Matrix);
 	static void COOToJD(const COOMatrix &Mtx, JDMatrix &Matrix);
-	//static void COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix);
+	static void COOToSL(const COOMatrix &Mtx, SLMatrix &Matrix);
 	static void qs(INTTYPE* s_arr, INTTYPE* _s_arr, int first, int last);
 };
 #endif

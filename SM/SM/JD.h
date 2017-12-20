@@ -45,9 +45,9 @@ public:
 	~JDMatrix();
 	void Print();
 	JDMatrix(const JDMatrix &Matrix);
-	JDMatrix *ReadFromBinaryFile(char *filename);	
-	void WriteInBinaryFile(const JDMatrix &Matrix, char *filename);		
-	FPTYPE* MatrixVectorMultJD(JDMatrix *Matrix, FPTYPE *vec, INTTYPE N, FPTYPE *result);
+	void ReadFromBinaryFile(char *filename);	
+	void WriteInBinaryFile(char *filename);		
+	void MatrixVectorMultJD(FPTYPE *vec, INTTYPE vec_N, FPTYPE *result);
 	JDMatrix& operator=(const JDMatrix &Matrix);
 };
 #endif
